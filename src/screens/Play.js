@@ -72,6 +72,57 @@ export default class Play extends Lightning.Component {
           },
         },
       },
+      Winner: {
+        x: 960,
+        y: -300,
+        zIndex: 3,
+        Box: {
+          w: 404,
+          h: 404,
+          mount: 0.5,
+          zIndex: 4,
+          color: 0xffd0d0d0,
+          rect: true,
+          shader: { type: Lightning.shaders.RoundedRectangle, radius: 50 },
+        },
+        Title: {
+          color: 0xff000000,
+          mount: 0.5,
+          zIndex: 5,
+          text: {
+            fontFace: "SourceCodePro",
+            fontSize: 50,
+            text: "player",
+          },
+        },
+        Info: {
+          y: 50,
+          zIndex: 5,
+          color: 0xff000000,
+          mount: 0.5,
+          text: {
+            fontFace: "SourceCodePro",
+            fontSize: 20,
+            text: "wins",
+          },
+        },
+        Shadow: {
+          White: {
+            x: -40,
+            y: -40,
+            mount: 0.5,
+            color: 0x33ffffff,
+            texture: lng.Tools.getShadowRect(404, 404, 50, 81, 162),
+          },
+          Black: {
+            x: 40,
+            y: 40,
+            mount: 0.5,
+            color: 0x33000000,
+            texture: lng.Tools.getShadowRect(404, 404, 50, 81, 162),
+          },
+        },
+      },
     };
   }
 
@@ -81,6 +132,10 @@ export default class Play extends Lightning.Component {
 
   _focus() {
     this.moveNames();
+    this.count = 0;
+    this.move = 50;
+    this.winner = false;
+    this.tag("Winner").y = -300;
   }
 
   _unfocus() {
@@ -89,35 +144,66 @@ export default class Play extends Lightning.Component {
 
   _handleBack() {
     this.rtow();
-    setTimeout(() => {
-      Router.navigate("start");
-    }, 750);
+    if (this.winner) {
+      this.tag("Winner").patch({
+        smooth: {
+          y: [1380, { timingFunction: "ease-in-out", duration: 0.7 }],
+        },
+      });
+    }
+    setTimeout(
+      () => {
+        Router.navigate("start");
+      },
+      this.count > 0 ? 750 : 100
+    );
   }
 
   _handleKey(key) {
-    console.log("handleKey from Play: ", key);
-    if (key.keyCode === 49) {
-      //key 1
-      this.rtow("left");
-    } else if (key.keyCode === 48) {
-      //key 0
-      this.rtow("right");
+    if (!this.winner) {
+      this.count++;
+      if (key.keyCode === 49) {
+        //key 1
+        this.rtow("left");
+      } else if (key.keyCode === 48) {
+        //key 0
+        this.rtow("right");
+      }
     }
   }
 
-  rtow(direction) {
+  rtow(playerPosition) {
     let val = -960;
-    let move = 50;// make the move larger by 10 each 10 seconds
-    if (direction === "left") {
-      val = this.tag("Left.Box").x + move;
-    } else if (direction === "right") {
-      val = this.tag("Left.Box").x - move;
+    if (playerPosition) {
+      if (playerPosition === "left" && this.tag("Left.Box").x >= 0) {
+        this.announceWinner(1);
+        return;
+      } else if (
+        playerPosition === "right" &&
+        this.tag("Left.Box").x <= -1920
+      ) {
+        this.announceWinner(2);
+        return;
+      }
+      if (this.count % 10 === 0) {
+        this.move += this.count - (this.count % 10);
+      }
+      if (playerPosition === "left") {
+        val = this.tag("Left.Box").x + this.move;
+      } else if (playerPosition === "right") {
+        val = this.tag("Left.Box").x - this.move;
+      }
+      val = val >= 0 ? 0 : val;
+      val = val <= -1920 ? -1920 : val;
     }
     this.tag("Left.Box").patch({
       smooth: {
         x: [
           val,
-          { timingFunction: "ease-in-out", duration: direction ? 0.5 : 0.7 },
+          {
+            timingFunction: "ease-in-out",
+            duration: playerPosition ? 0.5 : 0.7,
+          },
         ],
       },
     });
@@ -138,6 +224,22 @@ export default class Play extends Lightning.Component {
       smooth: {
         x: [player2X, { timingFunction: "ease", duration: 0.7 }],
         y: [player2Y, { timingFunction: "ease", duration: 0.7 }],
+      },
+    });
+  }
+
+  announceWinner(player) {
+    this.winner = true;
+    let playerName = "";
+    if (player === 1) {
+      playerName = this.tag("Left.Title").text.text;
+    } else if (player === 2) {
+      playerName = this.tag("Right.Title").text.text;
+    }
+    this.tag("Winner.Title").text.text = playerName;
+    this.tag("Winner").patch({
+      smooth: {
+        y: [540, { timingFunction: "ease-in-out", duration: 0.7 }],
       },
     });
   }

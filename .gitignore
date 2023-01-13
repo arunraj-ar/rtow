@@ -3,3 +3,5 @@ releases
 .tmp
 build
 node_modules
+
+dist
