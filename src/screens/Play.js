@@ -18,6 +18,7 @@
  */
 
 import { Lightning, Router } from "@lightningjs/sdk";
+import { defaultColors, playKeys } from "../config/config";
 
 export default class Play extends Lightning.Component {
   static _template() {
@@ -35,7 +36,7 @@ export default class Play extends Lightning.Component {
           h: 1080,
           x: -960,
           rect: true,
-          color: 0xff9ccda1,
+          color: defaultColors.left.inactive,
         },
         Title: {
           x: 480,
@@ -56,7 +57,7 @@ export default class Play extends Lightning.Component {
           w: 1920,
           h: 1080,
           rect: true,
-          color: 0xffcf7474,
+          color: defaultColors.right.inactive,
         },
         Title: {
           x: 1440,
@@ -81,7 +82,7 @@ export default class Play extends Lightning.Component {
           h: 404,
           mount: 0.5,
           zIndex: 4,
-          color: 0xffd0d0d0,
+          color: defaultColors.middle.active,
           rect: true,
           shader: { type: Lightning.shaders.RoundedRectangle, radius: 50 },
         },
@@ -159,14 +160,18 @@ export default class Play extends Lightning.Component {
     );
   }
 
+  _handleEnter() {
+    if (this.winner) {
+      this._handleBack();
+    }
+  }
+
   _handleKey(key) {
     if (!this.winner) {
       this.count++;
-      if (key.keyCode === 49) {
-        //key 1
+      if (key.keyCode === playKeys.left) {
         this.rtow("left");
-      } else if (key.keyCode === 48) {
-        //key 0
+      } else if (key.keyCode === playKeys.right) {
         this.rtow("right");
       }
     }

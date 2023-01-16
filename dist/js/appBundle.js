@@ -3,7 +3,7 @@
  * SDK version: 5.2.0
  * CLI version: 2.9.1
  * 
- * Generated: Fri, 13 Jan 2023 21:17:43 GMT
+ * Generated: Mon, 16 Jan 2023 18:38:50 GMT
  */
 
 var APP_com_metrological_app_rtow = (function () {
@@ -6005,6 +6005,50 @@ var APP_com_metrological_app_rtow = (function () {
    * See the License for the specific language governing permissions and
    * limitations under the License.
    */
+
+  const COLORS = {
+    white: {
+      inactive: 0xffd9d9d9,
+      active: 0xffededed
+    },
+    green: {
+      inactive: 0xff9ccda1,
+      active: 0xff99e1a0
+    },
+    red: {
+      inactive: 0xffcf7474,
+      active: 0xffea7474
+    }
+  };
+  const defaultColors = {
+    middle: COLORS.white,
+    left: COLORS.green,
+    right: COLORS.red
+  };
+  const playKeys = {
+    left: 49,
+    //key 1
+    right: 48 //key 0
+  };
+
+  /*
+   * If not stated otherwise in this file or this component's LICENSE file the
+   * following copyright and licenses apply:
+   *
+   * Copyright 2020 Metrological
+   *
+   * Licensed under the Apache License, Version 2.0 (the License);
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   * http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   */
   class StartGame extends Lightning$1.Component {
     static _template() {
       return {
@@ -6013,7 +6057,7 @@ var APP_com_metrological_app_rtow = (function () {
           h: 404,
           mount: 0.5,
           zIndex: 99,
-          color: 0xffd0d0d0,
+          color: defaultColors.middle.inactive,
           rect: true,
           shader: {
             type: Lightning$1.shaders.RoundedRectangle,
@@ -6083,7 +6127,7 @@ var APP_com_metrological_app_rtow = (function () {
       this.tag("Info.Underline").visible = true;
       this.tag("Box").patch({
         smooth: {
-          color: [0xffd9d9d9, {
+          color: [defaultColors.middle.active, {
             timingFunction: "ease-in-out",
             duration: 0.7
           }]
@@ -6094,7 +6138,7 @@ var APP_com_metrological_app_rtow = (function () {
       this.tag("Info.Underline").visible = false;
       this.tag("Box").patch({
         smooth: {
-          color: [0xffd0d0d0, {
+          color: [defaultColors.middle.inactive, {
             timingFunction: "ease-in-out",
             duration: 0.7
           }]
@@ -6140,7 +6184,7 @@ var APP_com_metrological_app_rtow = (function () {
         }
       });
       setTimeout(() => {
-        this.tag("Box").color = 0xffd9d9d9;
+        this.tag("Box").color = defaultColors.middle.active;
         this.tag("Box").scale = 1;
         this.tag("Shadow").patch({
           White: {
@@ -6230,7 +6274,7 @@ var APP_com_metrological_app_rtow = (function () {
             h: 1080,
             x: -960,
             rect: true,
-            color: 0xff9ccda1
+            color: defaultColors.left.inactive
           },
           Title: {
             x: 125,
@@ -6251,7 +6295,7 @@ var APP_com_metrological_app_rtow = (function () {
             w: 1920,
             h: 1080,
             rect: true,
-            color: 0xffcf7474
+            color: defaultColors.right.inactive
           },
           Title: {
             x: 1795,
@@ -6276,6 +6320,7 @@ var APP_com_metrological_app_rtow = (function () {
     }
     _init() {
       console.log("init from HomeScreen");
+      console.log(defaultColors);
     }
     _handleBack() {
       this.application.closeApp();
@@ -6395,7 +6440,7 @@ var APP_com_metrological_app_rtow = (function () {
           this.tag("Left.Underline").visible = true;
           this.tag("Left.Box").patch({
             smooth: {
-              color: [0xff87d58f, {
+              color: [defaultColors.left.active, {
                 timingFunction: "ease-in-out",
                 duration: 0.7
               }]
@@ -6406,7 +6451,7 @@ var APP_com_metrological_app_rtow = (function () {
           this.tag("Left.Underline").visible = false;
           this.tag("Left.Box").patch({
             smooth: {
-              color: [0xff9ccda1, {
+              color: [defaultColors.left.inactive, {
                 timingFunction: "ease-in-out",
                 duration: 0.7
               }]
@@ -6430,7 +6475,7 @@ var APP_com_metrological_app_rtow = (function () {
           this.tag("Right.Underline").visible = true;
           this.tag("Right.Box").patch({
             smooth: {
-              color: [0xffdf6c6c, {
+              color: [defaultColors.right.active, {
                 timingFunction: "ease-in-out",
                 duration: 0.7
               }]
@@ -6441,7 +6486,7 @@ var APP_com_metrological_app_rtow = (function () {
           this.tag("Right.Underline").visible = false;
           this.tag("Right.Box").patch({
             smooth: {
-              color: [0xffcf7474, {
+              color: [defaultColors.right.inactive, {
                 timingFunction: "ease-in-out",
                 duration: 0.7
               }]
@@ -6489,7 +6534,7 @@ var APP_com_metrological_app_rtow = (function () {
             h: 1080,
             x: -960,
             rect: true,
-            color: 0xff9ccda1
+            color: defaultColors.left.inactive
           },
           Title: {
             x: 480,
@@ -6510,7 +6555,7 @@ var APP_com_metrological_app_rtow = (function () {
             w: 1920,
             h: 1080,
             rect: true,
-            color: 0xffcf7474
+            color: defaultColors.right.inactive
           },
           Title: {
             x: 1440,
@@ -6535,7 +6580,7 @@ var APP_com_metrological_app_rtow = (function () {
             h: 404,
             mount: 0.5,
             zIndex: 4,
-            color: 0xffd0d0d0,
+            color: defaultColors.middle.active,
             rect: true,
             shader: {
               type: Lightning$1.shaders.RoundedRectangle,
@@ -6611,14 +6656,17 @@ var APP_com_metrological_app_rtow = (function () {
         Router.navigate("start");
       }, this.count > 0 ? 750 : 100);
     }
+    _handleEnter() {
+      if (this.winner) {
+        this._handleBack();
+      }
+    }
     _handleKey(key) {
       if (!this.winner) {
         this.count++;
-        if (key.keyCode === 49) {
-          //key 1
+        if (key.keyCode === playKeys.left) {
           this.rtow("left");
-        } else if (key.keyCode === 48) {
-          //key 0
+        } else if (key.keyCode === playKeys.right) {
           this.rtow("right");
         }
       }
@@ -6713,6 +6761,24 @@ var APP_com_metrological_app_rtow = (function () {
     }
   }
 
+  /*
+   * If not stated otherwise in this file or this component's LICENSE file the
+   * following copyright and licenses apply:
+   *
+   * Copyright 2020 Metrological
+   *
+   * Licensed under the Apache License, Version 2.0 (the License);
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   * http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   */
   var routes = {
     root: "start",
     routes: [{
@@ -6745,8 +6811,8 @@ var APP_com_metrological_app_rtow = (function () {
   class App extends Router.App {
     static getFonts() {
       return [{
-        family: 'SourceCodePro',
-        url: Utils.asset('fonts/SourceCodePro/SourceCodePro.ttf')
+        family: "SourceCodePro",
+        url: Utils.asset("fonts/SourceCodePro/SourceCodePro.ttf")
       }];
     }
     static _template() {
@@ -6761,6 +6827,24 @@ var APP_com_metrological_app_rtow = (function () {
     _init() {}
   }
 
+  /*
+   * If not stated otherwise in this file or this component's LICENSE file the
+   * following copyright and licenses apply:
+   *
+   * Copyright 2020 Metrological
+   *
+   * Licensed under the Apache License, Version 2.0 (the License);
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   * http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   */
   function index () {
     return Launch(App, ...arguments);
   }

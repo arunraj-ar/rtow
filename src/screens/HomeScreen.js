@@ -18,6 +18,7 @@
  */
 import { Lightning } from "@lightningjs/sdk";
 import StartGame from "../components/StartGame";
+import { COLORS, defaultColors } from "../config/config";
 
 export default class HomeScreen extends Lightning.Component {
   static _template() {
@@ -35,7 +36,7 @@ export default class HomeScreen extends Lightning.Component {
           h: 1080,
           x: -960,
           rect: true,
-          color: 0xff9ccda1,
+          color: defaultColors.left.inactive,
         },
         Title: {
           x: 125,
@@ -56,7 +57,7 @@ export default class HomeScreen extends Lightning.Component {
           w: 1920,
           h: 1080,
           rect: true,
-          color: 0xffcf7474,
+          color: defaultColors.right.inactive,
         },
         Title: {
           x: 1795,
@@ -82,6 +83,7 @@ export default class HomeScreen extends Lightning.Component {
 
   _init() {
     console.log("init from HomeScreen");
+    console.log(defaultColors);
   }
 
   _handleBack() {
@@ -167,7 +169,7 @@ export default class HomeScreen extends Lightning.Component {
     return [
       class Idle extends this {
         _handleKey() {
-          this._setState("Centre")
+          this._setState("Centre");
         }
       },
       class Centre extends this {
@@ -196,7 +198,7 @@ export default class HomeScreen extends Lightning.Component {
           this.tag("Left.Box").patch({
             smooth: {
               color: [
-                0xff87d58f,
+                defaultColors.left.active,
                 { timingFunction: "ease-in-out", duration: 0.7 },
               ],
             },
@@ -207,7 +209,7 @@ export default class HomeScreen extends Lightning.Component {
           this.tag("Left.Box").patch({
             smooth: {
               color: [
-                0xff9ccda1,
+                defaultColors.left.inactive,
                 { timingFunction: "ease-in-out", duration: 0.7 },
               ],
             },
@@ -232,7 +234,7 @@ export default class HomeScreen extends Lightning.Component {
           this.tag("Right.Box").patch({
             smooth: {
               color: [
-                0xffdf6c6c,
+                defaultColors.right.active,
                 { timingFunction: "ease-in-out", duration: 0.7 },
               ],
             },
@@ -243,7 +245,7 @@ export default class HomeScreen extends Lightning.Component {
           this.tag("Right.Box").patch({
             smooth: {
               color: [
-                0xffcf7474,
+                defaultColors.right.inactive,
                 { timingFunction: "ease-in-out", duration: 0.7 },
               ],
             },

@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { Lightning, Router } from "@lightningjs/sdk";
+import { defaultColors } from "../config/config";
 
 export default class StartGame extends Lightning.Component {
   static _template() {
@@ -26,7 +27,7 @@ export default class StartGame extends Lightning.Component {
         h: 404,
         mount: 0.5,
         zIndex: 99,
-        color: 0xffd0d0d0,
+        color: defaultColors.middle.inactive,
         rect: true,
         shader: { type: Lightning.shaders.RoundedRectangle, radius: 50 },
       },
@@ -94,7 +95,10 @@ export default class StartGame extends Lightning.Component {
     this.tag("Info.Underline").visible = true;
     this.tag("Box").patch({
       smooth: {
-        color: [0xffd9d9d9, { timingFunction: "ease-in-out", duration: 0.7 }],
+        color: [
+          defaultColors.middle.active,
+          { timingFunction: "ease-in-out", duration: 0.7 },
+        ],
       },
     });
   }
@@ -103,7 +107,10 @@ export default class StartGame extends Lightning.Component {
     this.tag("Info.Underline").visible = false;
     this.tag("Box").patch({
       smooth: {
-        color: [0xffd0d0d0, { timingFunction: "ease-in-out", duration: 0.7 }],
+        color: [
+          defaultColors.middle.inactive,
+          { timingFunction: "ease-in-out", duration: 0.7 },
+        ],
       },
     });
   }
@@ -149,7 +156,7 @@ export default class StartGame extends Lightning.Component {
       },
     });
     setTimeout(() => {
-      this.tag("Box").color = 0xffd9d9d9;
+      this.tag("Box").color = defaultColors.middle.active;
       this.tag("Box").scale = 1;
       this.tag("Shadow").patch({
         White: {

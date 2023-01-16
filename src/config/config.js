@@ -17,29 +17,28 @@
  * limitations under the License.
  */
 
-import { Router, Utils } from "@lightningjs/sdk";
-import routes from "./routes/routes";
+export const COLORS = {
+  white: {
+    inactive: 0xffd9d9d9,
+    active: 0xffededed,
+  },
+  green: {
+    inactive: 0xff9ccda1,
+    active: 0xff99e1a0,
+  },
+  red: {
+    inactive: 0xffcf7474,
+    active: 0xffea7474,
+  },
+};
 
-export default class App extends Router.App {
-  static getFonts() {
-    return [
-      {
-        family: "SourceCodePro",
-        url: Utils.asset("fonts/SourceCodePro/SourceCodePro.ttf"),
-      },
-    ];
-  }
+export const defaultColors = {
+  middle: COLORS.white,
+  left: COLORS.green,
+  right: COLORS.red,
+};
 
-  static _template() {
-    return {
-      ...super._template(),
-      Widgets: {},
-    };
-  }
-
-  _setup() {
-    Router.startRouter(routes, this);
-  }
-
-  _init() {}
-}
+export const playKeys = {
+  left: 49, //key 1
+  right: 48, //key 0
+};
