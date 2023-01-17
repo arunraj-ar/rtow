@@ -9,6 +9,7 @@ const createWindow = (width, height) => {
     titleBarStyle: "hidden",
     resizable: false,
     titleBarOverlay: true,
+    icon: "./static/icon.ico"
   });
 
   win.loadFile("index.html");
