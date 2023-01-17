@@ -13,6 +13,6 @@
 
 ## Plans
 
+* build a windows app executable using electron
 * support name change
 * support color change
-* build a windows app using electron
