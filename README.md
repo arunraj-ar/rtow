@@ -14,4 +14,3 @@
 ## Plans
 
 * support color change
-* build a windows app using electron
