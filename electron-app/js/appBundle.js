@@ -6323,7 +6323,7 @@ var APP_com_metrological_app_rtow = (function () {
       console.log(defaultColors);
     }
     _handleBack() {
-      this.application.closeApp();
+      window.close();
     }
     _firstActive() {
       this.drawUnderLine("Left.Title");

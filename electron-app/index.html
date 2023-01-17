@@ -18,24 +18,24 @@
   "stage": {
     "clearColor": "0x00000000",
     "useImageWorker": true,
-    "w": 2560,
-    "h": 1440,
-    "precision": 1.3333333333
+    "w": window.screen.width,
+    "h": window.screen.height,
+    "precision": window.screen.height/1080
   },
-  "debug": true,
-  "enablePointer": true,
+  "debug": false,
+  "enablePointer": false,
   "name": "rtow",
   "identifier": "com.metrological.app.rtow",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "icon": "./static/icon.png",
   "id": "com.metrological.app.rtow"
 }
 
             const platformSettings = {
   "path": "./static",
-  "log": true,
+  "log": false,
   "showVersion": false,
-  "inspector": true
+  "inspector": false
 }
 
             const appData = {}
