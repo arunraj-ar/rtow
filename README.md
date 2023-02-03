@@ -13,6 +13,5 @@
 
 ## Plans
 
-* support name change
 * support color change
 * build a windows app using electron

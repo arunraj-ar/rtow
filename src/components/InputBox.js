@@ -96,7 +96,6 @@ export default class InputBox extends Lightning.Component {
   }
 
   _captureKey(key) {
-    console.log(key);
     let isAlphabet = key.keyCode >= 65 && key.keyCode <= 90;
     let nameLen = this.tag("Title").text.text.length;
     if (

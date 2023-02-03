@@ -3,7 +3,7 @@
  * SDK version: 5.2.0
  * CLI version: 2.9.1
  * 
- * Generated: Fri, 03 Feb 2023 18:51:06 GMT
+ * Generated: Fri, 03 Feb 2023 18:58:26 GMT
  */
 
 var APP_com_metrological_app_rtow = (function () {
@@ -1854,7 +1854,7 @@ var APP_com_metrological_app_rtow = (function () {
   }
   function getEnumerableOwnPropertySymbols(target) {
     return Object.getOwnPropertySymbols ? Object.getOwnPropertySymbols(target).filter(function (symbol) {
-      return Object.propertyIsEnumerable.call(target, symbol);
+      return target.propertyIsEnumerable(symbol);
     }) : [];
   }
   function getKeys(target) {
@@ -6117,7 +6117,6 @@ var APP_com_metrological_app_rtow = (function () {
       return false;
     }
     _captureKey(key) {
-      console.log(key);
       let isAlphabet = key.keyCode >= 65 && key.keyCode <= 90;
       let nameLen = this.tag("Title").text.text.length;
       if (this.isEditable && this.editMode && isAlphabet && nameLen < this.maxNameLen) {
