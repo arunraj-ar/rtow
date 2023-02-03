@@ -3,7 +3,7 @@
  * SDK version: 5.2.0
  * CLI version: 2.9.1
  * 
- * Generated: Mon, 16 Jan 2023 18:38:50 GMT
+ * Generated: Fri, 03 Feb 2023 18:51:06 GMT
  */
 
 var APP_com_metrological_app_rtow = (function () {
@@ -1854,7 +1854,7 @@ var APP_com_metrological_app_rtow = (function () {
   }
   function getEnumerableOwnPropertySymbols(target) {
     return Object.getOwnPropertySymbols ? Object.getOwnPropertySymbols(target).filter(function (symbol) {
-      return target.propertyIsEnumerable(symbol);
+      return Object.propertyIsEnumerable.call(target, symbol);
     }) : [];
   }
   function getKeys(target) {
@@ -3459,10 +3459,43 @@ var APP_com_metrological_app_rtow = (function () {
    * See the License for the specific language governing permissions and
    * limitations under the License.
    */
+  let namespace;
+  let lc;
   const initStorage = () => {
-    Settings$1.get('platform', 'id');
+    namespace = Settings$1.get('platform', 'id');
     // todo: pass options (for example to force the use of cookies)
-    new localCookie();
+    lc = new localCookie();
+  };
+  const namespacedKey = key => namespace ? [namespace, key].join('.') : key;
+  var Storage = {
+    get(key) {
+      try {
+        return JSON.parse(lc.getItem(namespacedKey(key)));
+      } catch (e) {
+        return null;
+      }
+    },
+    set(key, value) {
+      try {
+        lc.setItem(namespacedKey(key), JSON.stringify(value));
+        return true;
+      } catch (e) {
+        return false;
+      }
+    },
+    remove(key) {
+      lc.removeItem(namespacedKey(key));
+    },
+    clear() {
+      if (namespace) {
+        lc.keys().forEach(key => {
+          // remove the item if in the namespace
+          key.indexOf(namespace + '.') === 0 ? lc.removeItem(key) : null;
+        });
+      } else {
+        lc.clear();
+      }
+    }
   };
 
   /*
@@ -6005,6 +6038,177 @@ var APP_com_metrological_app_rtow = (function () {
    * See the License for the specific language governing permissions and
    * limitations under the License.
    */
+  class InputBox extends Lightning$1.Component {
+    static _template() {
+      return {
+        Title: {
+          w: 150,
+          mount: 0.5,
+          zIndex: 99,
+          color: 0xffffffff,
+          text: {
+            fontFace: "SourceCodePro",
+            fontSize: 20,
+            text: "player"
+          }
+        }
+      };
+    }
+    _firstEnable() {
+      this.nameChange = false;
+      this.isEditable = false;
+      this.wordLen = 0;
+      this.maxNameLen = 12;
+      this.title = "";
+      this.previousName = "";
+      this.drawUnderLine();
+      this.refreshAnimations();
+    }
+    _focus() {
+      this.underLineAnimation.start();
+      this.editMode = false;
+      this.previousName = this.tag("Title").text.text;
+      this.tag("Underline").visible = true;
+      this.blinkAnimation = this.tag("Underline").animation({
+        duration: 0.5,
+        repeat: -1,
+        repeatDelay: 0.5,
+        stopMethod: "fade",
+        actions: [{
+          p: "alpha",
+          v: {
+            0: 1,
+            1: 0
+          }
+        }]
+      });
+    }
+    _unfocus() {
+      if (this.editMode || this.name.length === 0) {
+        this.tag("Underline").visible = false;
+        this.editMode = false;
+        this.name = this.previousName;
+        this.nameChange = false;
+        this.blinkAnimation.stop();
+        this.tag("Underline").color = 0xffffffff;
+        this.tag("Title").color = 0xffffffff;
+      }
+      this.underLineAnimation.stop();
+    }
+    _handleEnter() {
+      if (this.isEditable) {
+        this.nameChange = true;
+        if (this.editMode) {
+          this.title = this.tag("Title").text.text;
+          this.name = this.title;
+          this.editMode = false;
+          this.blinkAnimation.stop();
+          this.tag("Underline").color = 0xffffffff;
+          this.tag("Title").color = 0xffffffff;
+        } else {
+          this.name = this.title;
+          this.editMode = true;
+          this.tag("Underline").color = 0xff000000;
+          this.tag("Title").color = 0xff000000;
+          this.blinkAnimation.start();
+          return true;
+        }
+      }
+      return false;
+    }
+    _captureKey(key) {
+      console.log(key);
+      let isAlphabet = key.keyCode >= 65 && key.keyCode <= 90;
+      let nameLen = this.tag("Title").text.text.length;
+      if (this.isEditable && this.editMode && isAlphabet && nameLen < this.maxNameLen) {
+        this.name = this.tag("Title").text.text + key.key;
+        this.nameChange = true;
+      } else if (key.keyCode === 8) {
+        if (nameLen === 0) {
+          console.log("Nothing more to clear");
+        } else {
+          if (this.editMode) {
+            this.name = this.tag("Title").text.text.slice(0, -1);
+            this.nameChange = true;
+          }
+        }
+      } else {
+        return false;
+      }
+    }
+    set name(v) {
+      this.tag("Title").text.text = v;
+      this.title = v;
+      this.wordLen = this.tag("Title").text.text.length * 12;
+      this.refreshAnimations();
+      if (this.nameChange) {
+        this.nameChange = false;
+        this.underLineAnimation.start();
+      }
+    }
+    get name() {
+      return this.tag("Title").text.text;
+    }
+    set editable(v) {
+      this.isEditable = v;
+    }
+    set color(v) {
+      this.tag("Title").color = v;
+      this.tag("UnderLine").color = v;
+    }
+    drawUnderLine() {
+      this.tag("Title").patch({
+        Underline: {
+          h: 3,
+          w: 0,
+          y: 28,
+          rect: true,
+          color: 0xffffffff
+        }
+      });
+    }
+    refreshAnimations() {
+      this.underLineAnimation = this.tag("Underline").animation({
+        duration: 0.3,
+        repeat: 0,
+        stopMethod: "reverse",
+        actions: [{
+          p: "w",
+          v: {
+            0: 0,
+            0.25: this.wordLen / 2,
+            1: this.wordLen
+          }
+        }, {
+          p: "x",
+          v: {
+            0: this.wordLen / 2,
+            0.25: this.wordLen / 4,
+            1: 0
+          }
+        }]
+      });
+    }
+  }
+
+  /*
+   * If not stated otherwise in this file or this component's LICENSE file the
+   * following copyright and licenses apply:
+   *
+   * Copyright 2020 Metrological
+   *
+   * Licensed under the Apache License, Version 2.0 (the License);
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   * http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   */
 
   const COLORS = {
     white: {
@@ -6112,19 +6316,38 @@ var APP_com_metrological_app_rtow = (function () {
       };
     }
     _firstActive() {
+      let wordLen = this.tag("Info").text.text.length * 12;
       this.tag("Info").patch({
         Underline: {
           h: 3,
-          w: this.tag("Info").text.text.length * 12,
+          w: 0,
           y: 28,
           rect: true,
-          color: 0xff000000,
-          visible: false
+          color: 0xff000000
         }
+      });
+      this.underLineAnimation = this.tag("Info.Underline").animation({
+        duration: 0.3,
+        repeat: 0,
+        stopMethod: "reverse",
+        actions: [{
+          p: "w",
+          v: {
+            0: 0,
+            0.25: wordLen / 2,
+            1: wordLen
+          }
+        }, {
+          p: "x",
+          v: {
+            0: wordLen / 2,
+            0.25: wordLen / 4,
+            1: 0
+          }
+        }]
       });
     }
     _focus() {
-      this.tag("Info.Underline").visible = true;
       this.tag("Box").patch({
         smooth: {
           color: [defaultColors.middle.active, {
@@ -6133,9 +6356,9 @@ var APP_com_metrological_app_rtow = (function () {
           }]
         }
       });
+      this.underLineAnimation.start();
     }
     _unfocus() {
-      this.tag("Info.Underline").visible = false;
       this.tag("Box").patch({
         smooth: {
           color: [defaultColors.middle.inactive, {
@@ -6144,6 +6367,7 @@ var APP_com_metrological_app_rtow = (function () {
           }]
         }
       });
+      this.underLineAnimation.stop();
     }
     _handleClick() {
       console.log("click from StartGame");
@@ -6279,15 +6503,9 @@ var APP_com_metrological_app_rtow = (function () {
           Title: {
             x: 125,
             y: 50,
-            w: 150,
             mount: 0.5,
             zIndex: 99,
-            color: 0xffffffff,
-            text: {
-              fontFace: "SourceCodePro",
-              fontSize: 20,
-              text: "player 1"
-            }
+            type: InputBox
           }
         },
         Right: {
@@ -6300,15 +6518,9 @@ var APP_com_metrological_app_rtow = (function () {
           Title: {
             x: 1795,
             y: 50,
-            w: 150,
             mount: 0.5,
             zIndex: 99,
-            color: 0xffffffff,
-            text: {
-              fontFace: "SourceCodePro",
-              fontSize: 20,
-              text: "player 2"
-            }
+            type: InputBox
           }
         },
         Centre: {
@@ -6321,16 +6533,15 @@ var APP_com_metrological_app_rtow = (function () {
     _init() {
       console.log("init from HomeScreen");
       console.log(defaultColors);
+      Storage.set("p1name", "playerOne");
+      Storage.set("p2name", "playerTwo");
     }
     _handleBack() {
       this.application.closeApp();
     }
-    _firstActive() {
-      this.drawUnderLine("Left.Title");
-      this.drawUnderLine("Right.Title");
-    }
     _focus() {
-      //make it drop from top, and go down on unfocus
+      this.updateNameValues(1, Storage.get("p1name"));
+      this.updateNameValues(2, Storage.get("p2name"));
       this.tag("Centre").y = -300;
       this.tag("Centre").patch({
         smooth: {
@@ -6346,7 +6557,7 @@ var APP_com_metrological_app_rtow = (function () {
       }, 900);
     }
     _unfocus() {
-      this.resetNames();
+      this.resetNamesPosition();
       this._setState("Idle");
     }
     moveNames() {
@@ -6379,7 +6590,7 @@ var APP_com_metrological_app_rtow = (function () {
         }
       });
     }
-    resetNames() {
+    resetNamesPosition() {
       const player1X = 125;
       const player1Y = 50;
       const player2X = 1795;
@@ -6400,6 +6611,15 @@ var APP_com_metrological_app_rtow = (function () {
           visible: false
         }
       });
+    }
+    updateNameValues(player, value) {
+      if (player === 1) {
+        this.tag("Left.Title").name = value;
+        this.tag("Left.Title").editable = true;
+      } else if (player === 2) {
+        this.tag("Right.Title").name = value;
+        this.tag("Right.Title").editable = true;
+      }
     }
     $unfocusAnimation() {
       this.tag("Centre").patch({
@@ -6427,9 +6647,9 @@ var APP_com_metrological_app_rtow = (function () {
           this._setState("Player2");
         }
       }, class Player1 extends this {
-        // _getFocused() {
-        //   return this.tag("Left");
-        // }
+        _getFocused() {
+          return this.tag("Left.Title");
+        }
         _handleLeft() {
           //
         }
@@ -6437,7 +6657,6 @@ var APP_com_metrological_app_rtow = (function () {
           this._setState("Centre");
         }
         $enter() {
-          this.tag("Left.Underline").visible = true;
           this.tag("Left.Box").patch({
             smooth: {
               color: [defaultColors.left.active, {
@@ -6448,7 +6667,6 @@ var APP_com_metrological_app_rtow = (function () {
           });
         }
         $exit() {
-          this.tag("Left.Underline").visible = false;
           this.tag("Left.Box").patch({
             smooth: {
               color: [defaultColors.left.inactive, {
@@ -6459,12 +6677,12 @@ var APP_com_metrological_app_rtow = (function () {
           });
         }
         _handleEnter() {
-          console.log("edit player 1");
+          Storage.set("p1name", this.tag("Left.Title").name);
         }
       }, class Player2 extends this {
-        // _getFocused() {
-        //   return this.tag("Right");
-        // }
+        _getFocused() {
+          return this.tag("Right.Title");
+        }
         _handleLeft() {
           this._setState("Centre");
         }
@@ -6472,7 +6690,6 @@ var APP_com_metrological_app_rtow = (function () {
           //
         }
         $enter() {
-          this.tag("Right.Underline").visible = true;
           this.tag("Right.Box").patch({
             smooth: {
               color: [defaultColors.right.active, {
@@ -6483,7 +6700,6 @@ var APP_com_metrological_app_rtow = (function () {
           });
         }
         $exit() {
-          this.tag("Right.Underline").visible = false;
           this.tag("Right.Box").patch({
             smooth: {
               color: [defaultColors.right.inactive, {
@@ -6494,7 +6710,7 @@ var APP_com_metrological_app_rtow = (function () {
           });
         }
         _handleEnter() {
-          console.log("edit player 2");
+          Storage.set("p2name", this.tag("Right.Title").name);
         }
       }];
     }
@@ -6539,15 +6755,9 @@ var APP_com_metrological_app_rtow = (function () {
           Title: {
             x: 480,
             y: 540,
-            w: 150,
             mount: 0.5,
             zIndex: 99,
-            color: 0xffffffff,
-            text: {
-              fontFace: "SourceCodePro",
-              fontSize: 20,
-              text: "player 1"
-            }
+            type: InputBox
           }
         },
         Right: {
@@ -6560,15 +6770,9 @@ var APP_com_metrological_app_rtow = (function () {
           Title: {
             x: 1440,
             y: 540,
-            w: 150,
             mount: 0.5,
             zIndex: 99,
-            color: 0xffffffff,
-            text: {
-              fontFace: "SourceCodePro",
-              fontSize: 20,
-              text: "player 2"
-            }
+            type: InputBox
           }
         },
         Winner: {
@@ -6634,8 +6838,11 @@ var APP_com_metrological_app_rtow = (function () {
       this.moveNames();
       this.count = 0;
       this.move = 50;
+      this.speed = 0.5;
       this.winner = false;
       this.tag("Winner").y = -300;
+      this.tag("Left.Title").name = Storage.get("p1name");
+      this.tag("Right.Title").name = Storage.get("p2name");
     }
     _unfocus() {
       this.resetNames();
@@ -6674,15 +6881,12 @@ var APP_com_metrological_app_rtow = (function () {
     rtow(playerPosition) {
       let val = -960;
       if (playerPosition) {
-        if (playerPosition === "left" && this.tag("Left.Box").x >= 0) {
-          this.announceWinner(1);
-          return;
-        } else if (playerPosition === "right" && this.tag("Left.Box").x <= -1920) {
-          this.announceWinner(2);
-          return;
-        }
-        if (this.count % 10 === 0) {
-          this.move += this.count - this.count % 10;
+        if (this.count % 10 === 0 && this.count > this.move) {
+          this.move = this.count - this.count % 10;
+          if (this.speed > 0.2) {
+            this.speed -= 0.02;
+            console.log("SPEED: ", this.speed);
+          }
         }
         if (playerPosition === "left") {
           val = this.tag("Left.Box").x + this.move;
@@ -6692,11 +6896,16 @@ var APP_com_metrological_app_rtow = (function () {
         val = val >= 0 ? 0 : val;
         val = val <= -1920 ? -1920 : val;
       }
+      if (playerPosition === "left" && val >= 0) {
+        this.announceWinner(1);
+      } else if (playerPosition === "right" && val <= -1920) {
+        this.announceWinner(2);
+      }
       this.tag("Left.Box").patch({
         smooth: {
           x: [val, {
             timingFunction: "ease-in-out",
-            duration: playerPosition ? 0.5 : 0.7
+            duration: playerPosition ? this.speed : 0.7
           }]
         }
       });
@@ -6735,9 +6944,9 @@ var APP_com_metrological_app_rtow = (function () {
       this.winner = true;
       let playerName = "";
       if (player === 1) {
-        playerName = this.tag("Left.Title").text.text;
+        playerName = this.tag("Left.Title").name;
       } else if (player === 2) {
-        playerName = this.tag("Right.Title").text.text;
+        playerName = this.tag("Right.Title").name;
       }
       this.tag("Winner.Title").text.text = playerName;
       this.tag("Winner").patch({
@@ -6823,6 +7032,7 @@ var APP_com_metrological_app_rtow = (function () {
     }
     _setup() {
       Router.startRouter(routes, this);
+      document.title = "rtow";
     }
     _init() {}
   }

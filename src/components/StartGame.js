@@ -80,19 +80,27 @@ export default class StartGame extends Lightning.Component {
   }
 
   _firstActive() {
+    let wordLen = this.tag("Info").text.text.length * 12;
     this.tag("Info").patch({
       Underline: {
         h: 3,
-        w: this.tag("Info").text.text.length * 12,
+        w: 0,
         y: 28,
         rect: true,
         color: 0xff000000,
-        visible: false,
       },
+    });
+    this.underLineAnimation = this.tag("Info.Underline").animation({
+      duration: 0.3,
+      repeat: 0,
+      stopMethod: "reverse",
+      actions: [
+        { p: "w", v: { 0: 0, 0.25: wordLen / 2, 1: wordLen } },
+        { p: "x", v: { 0: wordLen / 2, 0.25: wordLen / 4, 1: 0 } },
+      ],
     });
   }
   _focus() {
-    this.tag("Info.Underline").visible = true;
     this.tag("Box").patch({
       smooth: {
         color: [
@@ -101,10 +109,10 @@ export default class StartGame extends Lightning.Component {
         ],
       },
     });
+    this.underLineAnimation.start();
   }
 
   _unfocus() {
-    this.tag("Info.Underline").visible = false;
     this.tag("Box").patch({
       smooth: {
         color: [
@@ -113,6 +121,7 @@ export default class StartGame extends Lightning.Component {
         ],
       },
     });
+    this.underLineAnimation.stop();
   }
 
   _handleClick() {

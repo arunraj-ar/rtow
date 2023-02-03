@@ -17,7 +17,8 @@
  * limitations under the License.
  */
 
-import { Lightning, Router } from "@lightningjs/sdk";
+import { Lightning, Router, Storage } from "@lightningjs/sdk";
+import InputBox from "../components/InputBox";
 import { defaultColors, playKeys } from "../config/config";
 
 export default class Play extends Lightning.Component {
@@ -41,15 +42,9 @@ export default class Play extends Lightning.Component {
         Title: {
           x: 480,
           y: 540,
-          w: 150,
           mount: 0.5,
           zIndex: 99,
-          color: 0xffffffff,
-          text: {
-            fontFace: "SourceCodePro",
-            fontSize: 20,
-            text: "player 1",
-          },
+          type: InputBox,
         },
       },
       Right: {
@@ -62,15 +57,9 @@ export default class Play extends Lightning.Component {
         Title: {
           x: 1440,
           y: 540,
-          w: 150,
           mount: 0.5,
           zIndex: 99,
-          color: 0xffffffff,
-          text: {
-            fontFace: "SourceCodePro",
-            fontSize: 20,
-            text: "player 2",
-          },
+          type: InputBox,
         },
       },
       Winner: {
@@ -135,8 +124,11 @@ export default class Play extends Lightning.Component {
     this.moveNames();
     this.count = 0;
     this.move = 50;
+    this.speed = 0.5;
     this.winner = false;
     this.tag("Winner").y = -300;
+    this.tag("Left.Title").name = Storage.get("p1name");
+    this.tag("Right.Title").name = Storage.get("p2name");
   }
 
   _unfocus() {
@@ -180,18 +172,12 @@ export default class Play extends Lightning.Component {
   rtow(playerPosition) {
     let val = -960;
     if (playerPosition) {
-      if (playerPosition === "left" && this.tag("Left.Box").x >= 0) {
-        this.announceWinner(1);
-        return;
-      } else if (
-        playerPosition === "right" &&
-        this.tag("Left.Box").x <= -1920
-      ) {
-        this.announceWinner(2);
-        return;
-      }
-      if (this.count % 10 === 0) {
-        this.move += this.count - (this.count % 10);
+      if (this.count % 10 === 0 && this.count > this.move) {
+        this.move = this.count - (this.count % 10);
+        if (this.speed > 0.2) {
+          this.speed -= 0.02;
+          console.log("SPEED: ", this.speed);
+        }
       }
       if (playerPosition === "left") {
         val = this.tag("Left.Box").x + this.move;
@@ -201,13 +187,18 @@ export default class Play extends Lightning.Component {
       val = val >= 0 ? 0 : val;
       val = val <= -1920 ? -1920 : val;
     }
+    if (playerPosition === "left" && val >= 0) {
+      this.announceWinner(1);
+    } else if (playerPosition === "right" && val <= -1920) {
+      this.announceWinner(2);
+    }
     this.tag("Left.Box").patch({
       smooth: {
         x: [
           val,
           {
             timingFunction: "ease-in-out",
-            duration: playerPosition ? 0.5 : 0.7,
+            duration: playerPosition ? this.speed : 0.7,
           },
         ],
       },
@@ -237,9 +228,9 @@ export default class Play extends Lightning.Component {
     this.winner = true;
     let playerName = "";
     if (player === 1) {
-      playerName = this.tag("Left.Title").text.text;
+      playerName = this.tag("Left.Title").name;
     } else if (player === 2) {
-      playerName = this.tag("Right.Title").text.text;
+      playerName = this.tag("Right.Title").name;
     }
     this.tag("Winner.Title").text.text = playerName;
     this.tag("Winner").patch({

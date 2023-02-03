@@ -39,6 +39,7 @@ export default class App extends Router.App {
 
   _setup() {
     Router.startRouter(routes, this);
+    document.title = "rtow";
   }
 
   _init() {}

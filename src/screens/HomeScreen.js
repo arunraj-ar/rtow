@@ -16,7 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Lightning } from "@lightningjs/sdk";
+import { Lightning, Storage } from "@lightningjs/sdk";
+import InputBox from "../components/InputBox";
 import StartGame from "../components/StartGame";
 import { COLORS, defaultColors } from "../config/config";
 
@@ -41,15 +42,9 @@ export default class HomeScreen extends Lightning.Component {
         Title: {
           x: 125,
           y: 50,
-          w: 150,
           mount: 0.5,
           zIndex: 99,
-          color: 0xffffffff,
-          text: {
-            fontFace: "SourceCodePro",
-            fontSize: 20,
-            text: "player 1",
-          },
+          type: InputBox,
         },
       },
       Right: {
@@ -62,15 +57,9 @@ export default class HomeScreen extends Lightning.Component {
         Title: {
           x: 1795,
           y: 50,
-          w: 150,
           mount: 0.5,
           zIndex: 99,
-          color: 0xffffffff,
-          text: {
-            fontFace: "SourceCodePro",
-            fontSize: 20,
-            text: "player 2",
-          },
+          type: InputBox,
         },
       },
       Centre: {
@@ -84,19 +73,17 @@ export default class HomeScreen extends Lightning.Component {
   _init() {
     console.log("init from HomeScreen");
     console.log(defaultColors);
+    Storage.set("p1name", "playerOne");
+    Storage.set("p2name", "playerTwo");
   }
 
   _handleBack() {
     this.application.closeApp();
   }
 
-  _firstActive() {
-    this.drawUnderLine("Left.Title");
-    this.drawUnderLine("Right.Title");
-  }
-
   _focus() {
-    //make it drop from top, and go down on unfocus
+    this.updateNameValues(1, Storage.get("p1name"));
+    this.updateNameValues(2, Storage.get("p2name"));
     this.tag("Centre").y = -300;
     this.tag("Centre").patch({
       smooth: {
@@ -110,7 +97,7 @@ export default class HomeScreen extends Lightning.Component {
   }
 
   _unfocus() {
-    this.resetNames();
+    this.resetNamesPosition();
     this._setState("Idle");
   }
 
@@ -133,7 +120,7 @@ export default class HomeScreen extends Lightning.Component {
     });
   }
 
-  resetNames() {
+  resetNamesPosition() {
     const player1X = 125;
     const player1Y = 50;
     const player2X = 1795;
@@ -157,6 +144,15 @@ export default class HomeScreen extends Lightning.Component {
     });
   }
 
+  updateNameValues(player, value) {
+    if (player === 1) {
+      this.tag("Left.Title").name = value;
+      this.tag("Left.Title").editable = true;
+    } else if (player === 2) {
+      this.tag("Right.Title").name = value;
+      this.tag("Right.Title").editable = true;
+    }
+  }
   $unfocusAnimation() {
     this.tag("Centre").patch({
       smooth: {
@@ -184,9 +180,9 @@ export default class HomeScreen extends Lightning.Component {
         }
       },
       class Player1 extends this {
-        // _getFocused() {
-        //   return this.tag("Left");
-        // }
+        _getFocused() {
+          return this.tag("Left.Title");
+        }
         _handleLeft() {
           //
         }
@@ -194,7 +190,6 @@ export default class HomeScreen extends Lightning.Component {
           this._setState("Centre");
         }
         $enter() {
-          this.tag("Left.Underline").visible = true;
           this.tag("Left.Box").patch({
             smooth: {
               color: [
@@ -205,7 +200,6 @@ export default class HomeScreen extends Lightning.Component {
           });
         }
         $exit() {
-          this.tag("Left.Underline").visible = false;
           this.tag("Left.Box").patch({
             smooth: {
               color: [
@@ -216,13 +210,13 @@ export default class HomeScreen extends Lightning.Component {
           });
         }
         _handleEnter() {
-          console.log("edit player 1");
+          Storage.set("p1name", this.tag("Left.Title").name);
         }
       },
       class Player2 extends this {
-        // _getFocused() {
-        //   return this.tag("Right");
-        // }
+        _getFocused() {
+          return this.tag("Right.Title");
+        }
         _handleLeft() {
           this._setState("Centre");
         }
@@ -230,7 +224,6 @@ export default class HomeScreen extends Lightning.Component {
           //
         }
         $enter() {
-          this.tag("Right.Underline").visible = true;
           this.tag("Right.Box").patch({
             smooth: {
               color: [
@@ -241,7 +234,6 @@ export default class HomeScreen extends Lightning.Component {
           });
         }
         $exit() {
-          this.tag("Right.Underline").visible = false;
           this.tag("Right.Box").patch({
             smooth: {
               color: [
@@ -252,7 +244,7 @@ export default class HomeScreen extends Lightning.Component {
           });
         }
         _handleEnter() {
-          console.log("edit player 2");
+          Storage.set("p2name", this.tag("Right.Title").name);
         }
       },
     ];
