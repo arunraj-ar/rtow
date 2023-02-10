@@ -58,7 +58,7 @@ export default class StartGame extends Lightning.Component {
         w: 101,
         mountX: 0.5,
         zIndex: 200,
-        texture: lng.Tools.getCanvasTexture(StartGame._createCanvas),
+        texture: lng.Tools.getCanvasTexture(this._createCanvas),
       },
       Shadow: {
         White: {

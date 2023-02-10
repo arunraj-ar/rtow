@@ -2,6 +2,7 @@
   "name": "com.metrological.app.rtow",
   "description": "rtow",
   "dependencies": {
-    "@lightningjs/sdk": "^5.2.0"
+    "@lightningjs/sdk": "^5.2.0",
+    "party-js": "^2.2.0"
   }
 }

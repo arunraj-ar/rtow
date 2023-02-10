@@ -98,22 +98,17 @@ export default class InputBox extends Lightning.Component {
   _captureKey(key) {
     let isAlphabet = key.keyCode >= 65 && key.keyCode <= 90;
     let nameLen = this.tag("Title").text.text.length;
-    if (
-      this.isEditable &&
-      this.editMode &&
-      isAlphabet &&
-      nameLen < this.maxNameLen
-    ) {
-      this.name = this.tag("Title").text.text + key.key;
-      this.nameChange = true;
-    } else if (key.keyCode === 8) {
-      if (nameLen === 0) {
-        console.log("Nothing more to clear");
-      } else {
-        if (this.editMode) {
+    if (this.isEditable && this.editMode) {
+      if (isAlphabet && nameLen < this.maxNameLen) {
+        this.name = this.tag("Title").text.text + key.key;
+        this.nameChange = true;
+      } else if (key.keyCode === 8) {
+        if (nameLen > 0) {
           this.name = this.tag("Title").text.text.slice(0, -1);
           this.nameChange = true;
         }
+      } else {
+        return false;
       }
     } else {
       return false;

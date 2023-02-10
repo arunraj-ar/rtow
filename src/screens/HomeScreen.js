@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { Lightning, Storage } from "@lightningjs/sdk";
+import AlertBox from "../components/AlertBox";
 import InputBox from "../components/InputBox";
 import StartGame from "../components/StartGame";
 import { COLORS, defaultColors } from "../config/config";
@@ -67,19 +68,21 @@ export default class HomeScreen extends Lightning.Component {
         y: -300,
         type: StartGame,
       },
+      AlertBox: {
+        x: 960,
+        y: 540,
+        zIndex: 999,
+        type: AlertBox,
+      },
     };
   }
 
   _init() {
-    console.log("init from HomeScreen");
-    console.log(defaultColors);
     Storage.set("p1name", "playerOne");
     Storage.set("p2name", "playerTwo");
   }
 
-  _handleBack() {
-    this.application.closeApp();
-  }
+  _handleBack() {}
 
   _focus() {
     this.updateNameValues(1, Storage.get("p1name"));
@@ -178,6 +181,11 @@ export default class HomeScreen extends Lightning.Component {
         _handleRight() {
           this._setState("Player2");
         }
+        _handleBack() {
+          setTimeout(() => {
+            this._setState("ExitApp");
+          }, 300);
+        }
       },
       class Player1 extends this {
         _getFocused() {
@@ -187,6 +195,9 @@ export default class HomeScreen extends Lightning.Component {
           //
         }
         _handleRight() {
+          this._setState("Centre");
+        }
+        _handleBack() {
           this._setState("Centre");
         }
         $enter() {
@@ -210,7 +221,10 @@ export default class HomeScreen extends Lightning.Component {
           });
         }
         _handleEnter() {
-          Storage.set("p1name", this.tag("Left.Title").name);
+          let name = this.tag("Left.Title").name;
+          if (name.length > 0) {
+            Storage.set("p1name", name);
+          }
         }
       },
       class Player2 extends this {
@@ -222,6 +236,9 @@ export default class HomeScreen extends Lightning.Component {
         }
         _handleRight() {
           //
+        }
+        _handleBack() {
+          this._setState("Centre");
         }
         $enter() {
           this.tag("Right.Box").patch({
@@ -244,8 +261,31 @@ export default class HomeScreen extends Lightning.Component {
           });
         }
         _handleEnter() {
-          Storage.set("p2name", this.tag("Right.Title").name);
+          let name = this.tag("Left.Title").name;
+          if (name.length > 0) {
+            Storage.set("p2name", this.tag("Right.Title").name);
+          }
         }
+      },
+      class ExitApp extends this {
+        $enter() {
+          this.tag("AlertBox").startAnimation();
+        }
+        $exit() {
+          this.tag("AlertBox").stopAnimation();
+        }
+        _handleBack() {
+          setTimeout(() => {
+            this._setState("Centre");
+          }, 300);
+        }
+        _handleEnter() {
+          this.application.closeApp();
+        }
+        _handleDown() {}
+        _handleUp() {}
+        _handleLeft() {}
+        _handleRight() {}
       },
     ];
   }

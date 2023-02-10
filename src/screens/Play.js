@@ -20,6 +20,7 @@
 import { Lightning, Router, Storage } from "@lightningjs/sdk";
 import InputBox from "../components/InputBox";
 import { defaultColors, playKeys } from "../config/config";
+import party from "party-js";
 
 export default class Play extends Lightning.Component {
   static _template() {
@@ -116,10 +117,6 @@ export default class Play extends Lightning.Component {
     };
   }
 
-  _init() {
-    console.log("init from Play");
-  }
-
   _focus() {
     this.moveNames();
     this.count = 0;
@@ -176,7 +173,6 @@ export default class Play extends Lightning.Component {
         this.move = this.count - (this.count % 10);
         if (this.speed > 0.2) {
           this.speed -= 0.02;
-          console.log("SPEED: ", this.speed);
         }
       }
       if (playerPosition === "left") {
@@ -238,6 +234,11 @@ export default class Play extends Lightning.Component {
         y: [540, { timingFunction: "ease-in-out", duration: 0.7 }],
       },
     });
+    setTimeout(() => {
+      party.confetti(document.getElementsByTagName("canvas")[0], {
+        count: 100,
+      });
+    }, 500);
   }
 
   resetNames() {
