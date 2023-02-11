@@ -75,6 +75,7 @@ export default class InputBox extends Lightning.Component {
 
   _handleEnter() {
     if (this.isEditable) {
+      this.fireAncestors("$playClick");
       this.nameChange = true;
       if (this.editMode) {
         this.title = this.tag("Title").text.text;
@@ -100,10 +101,12 @@ export default class InputBox extends Lightning.Component {
     let nameLen = this.tag("Title").text.text.length;
     if (this.isEditable && this.editMode) {
       if (isAlphabet && nameLen < this.maxNameLen) {
+        this.fireAncestors("$playClick");
         this.name = this.tag("Title").text.text + key.key;
         this.nameChange = true;
       } else if (key.keyCode === 8) {
         if (nameLen > 0) {
+          this.fireAncestors("$playClick");
           this.name = this.tag("Title").text.text.slice(0, -1);
           this.nameChange = true;
         }

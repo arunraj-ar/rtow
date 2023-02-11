@@ -117,6 +117,10 @@ export default class Play extends Lightning.Component {
     };
   }
 
+  _firstEnable() {
+    this.confetti = new Audio("static/sounds/confetti.mp3");
+  }
+
   _focus() {
     this.moveNames();
     this.count = 0;
@@ -133,6 +137,7 @@ export default class Play extends Lightning.Component {
   }
 
   _handleBack() {
+    this.fireAncestors("$playClick");
     this.rtow();
     if (this.winner) {
       this.tag("Winner").patch({
@@ -151,6 +156,7 @@ export default class Play extends Lightning.Component {
 
   _handleEnter() {
     if (this.winner) {
+      this.fireAncestors("$playClick");
       this._handleBack();
     }
   }
@@ -169,6 +175,7 @@ export default class Play extends Lightning.Component {
   rtow(playerPosition) {
     let val = -960;
     if (playerPosition) {
+      this.fireAncestors("$playWoosh");
       if (this.count % 10 === 0 && this.count > this.move) {
         this.move = this.count - (this.count % 10);
         if (this.speed > 0.2) {
@@ -238,6 +245,8 @@ export default class Play extends Lightning.Component {
       party.confetti(document.getElementsByTagName("canvas")[0], {
         count: 100,
       });
+      this.fireAncestors("$playConfetti");
+      this.fireAncestors("$playWinner");
     }, 500);
   }
 

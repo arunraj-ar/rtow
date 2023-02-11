@@ -176,15 +176,21 @@ export default class HomeScreen extends Lightning.Component {
           return this.tag("Centre");
         }
         _handleLeft() {
+          this.fireAncestors("$playClick");
           this._setState("Player1");
         }
         _handleRight() {
+          this.fireAncestors("$playClick");
           this._setState("Player2");
         }
         _handleBack() {
           setTimeout(() => {
+            this.fireAncestors("$playClick");
             this._setState("ExitApp");
           }, 300);
+        }
+        _handleEnter() {
+          this.fireAncestors("$playClick");
         }
       },
       class Player1 extends this {
@@ -195,9 +201,11 @@ export default class HomeScreen extends Lightning.Component {
           //
         }
         _handleRight() {
+          this.fireAncestors("$playClick");
           this._setState("Centre");
         }
         _handleBack() {
+          this.fireAncestors("$playClick");
           this._setState("Centre");
         }
         $enter() {
@@ -221,6 +229,7 @@ export default class HomeScreen extends Lightning.Component {
           });
         }
         _handleEnter() {
+          this.fireAncestors("$playClick");
           let name = this.tag("Left.Title").name;
           if (name.length > 0) {
             Storage.set("p1name", name);
@@ -232,12 +241,14 @@ export default class HomeScreen extends Lightning.Component {
           return this.tag("Right.Title");
         }
         _handleLeft() {
+          this.fireAncestors("$playClick");
           this._setState("Centre");
         }
         _handleRight() {
           //
         }
         _handleBack() {
+          this.fireAncestors("$playClick");
           this._setState("Centre");
         }
         $enter() {
@@ -261,25 +272,30 @@ export default class HomeScreen extends Lightning.Component {
           });
         }
         _handleEnter() {
-          let name = this.tag("Left.Title").name;
+          this.fireAncestors("$playClick");
+          let name = this.tag("Right.Title").name;
           if (name.length > 0) {
-            Storage.set("p2name", this.tag("Right.Title").name);
+            Storage.set("p2name", name);
           }
         }
       },
       class ExitApp extends this {
         $enter() {
           this.tag("AlertBox").startAnimation();
+          this.fireAncestors("$playCredits");
         }
         $exit() {
           this.tag("AlertBox").stopAnimation();
+          this.fireAncestors("$stopCredits");
         }
         _handleBack() {
           setTimeout(() => {
+            this.fireAncestors("$playClick");
             this._setState("Centre");
           }, 300);
         }
         _handleEnter() {
+          this.fireAncestors("$playClick");
           this.application.closeApp();
         }
         _handleDown() {}
