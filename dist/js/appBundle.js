@@ -3,7 +3,7 @@
  * SDK version: 5.2.0
  * CLI version: 2.9.1
  * 
- * Generated: Sat, 11 Feb 2023 20:58:15 GMT
+ * Generated: Sun, 12 Feb 2023 19:44:28 GMT
  */
 
 var APP_com_metrological_app_rtow = (function () {
@@ -6248,7 +6248,7 @@ var APP_com_metrological_app_rtow = (function () {
       }
       this.underLineAnimation.stop();
     }
-    _handleEnter() {
+    _handleEnterRelease() {
       if (this.isEditable) {
         this.fireAncestors("$playClick");
         this.nameChange = true;
@@ -6480,7 +6480,7 @@ var APP_com_metrological_app_rtow = (function () {
       });
       this.underLineAnimation.stop();
     }
-    _handleEnter() {
+    _handleEnterRelease() {
       this.enterAnimation();
       setTimeout(() => {
         Router.navigate("play");
@@ -6590,6 +6590,13 @@ var APP_com_metrological_app_rtow = (function () {
           rect: true,
           color: 0xff000000
         },
+        Volume: {
+          x: 1870,
+          y: 50,
+          mount: 0.5,
+          zIndex: 3,
+          src: ""
+        },
         Left: {
           zIndex: 2,
           Box: {
@@ -6640,9 +6647,16 @@ var APP_com_metrological_app_rtow = (function () {
       Storage.set("p2name", "playerTwo");
     }
     _handleBack() {}
+    _handleUp() {
+      if (!this.speakerBlast) {
+        this.fireAncestors("$playClick");
+        this._setState("Volume");
+      }
+    }
     _focus() {
       this.updateNameValues(1, Storage.get("p1name"));
       this.updateNameValues(2, Storage.get("p2name"));
+      this.long = 0;
       this.tag("Centre").y = -300;
       this.tag("Centre").patch({
         smooth: {
@@ -6655,11 +6669,19 @@ var APP_com_metrological_app_rtow = (function () {
       this.moveNames();
       setTimeout(() => {
         this._setState("Centre");
+        this.setVolumeIcon();
       }, 900);
     }
     _unfocus() {
       this.resetNamesPosition();
       this._setState("Idle");
+    }
+    setVolumeIcon() {
+      if (this.fireAncestors("$getGameSound")) {
+        this.tag("Volume").src = "static/icons/sound.png";
+      } else {
+        this.tag("Volume").src = "static/icons/mute.png";
+      }
     }
     moveNames() {
       const player1X = 480;
@@ -6734,7 +6756,52 @@ var APP_com_metrological_app_rtow = (function () {
     }
     static _states() {
       return [class Idle extends this {
-        _handleKey() {
+        _handleKeyRelease() {
+          this._setState("Centre");
+        }
+      }, class Volume extends this {
+        $enter() {
+          this.tag("Volume").color = 0xff000000;
+        }
+        $exit() {
+          this.tag("Volume").color = 0xffffffff;
+        }
+        _handleEnter() {
+          if (!this.speakerBlast) {
+            this.fireAncestors("$toggleSound");
+            this.setVolumeIcon();
+            this.fireAncestors("$playClick");
+            this.long++;
+            if (this.long > 100) {
+              new Audio("static/sounds/boom.mp3").play();
+              this.fireAncestors("$blastSpeaker");
+              this.setVolumeIcon();
+              this.speakerBlast = true;
+              this.tag("Volume").patch({
+                smooth: {
+                  x: [0, {
+                    timingFunction: "ease-out",
+                    duration: 0.5
+                  }],
+                  y: [1200, {
+                    timingFunction: "ease-out",
+                    duration: 0.5
+                  }]
+                }
+              });
+              this._setState("Idle");
+            }
+          }
+        }
+        _handleEnterRelease() {
+          this.long = 0;
+        }
+        _handleDown() {
+          this.fireAncestors("$playClick");
+          this._setState("Centre");
+        }
+        _handleBack() {
+          this.fireAncestors("$playClick");
           this._setState("Centre");
         }
       }, class Centre extends this {
@@ -6749,14 +6816,15 @@ var APP_com_metrological_app_rtow = (function () {
           this.fireAncestors("$playClick");
           this._setState("Player2");
         }
-        _handleBack() {
+        _handleBackRelease() {
           setTimeout(() => {
             this.fireAncestors("$playClick");
             this._setState("ExitApp");
           }, 300);
         }
-        _handleEnter() {
+        _handleEnterRelease() {
           this.fireAncestors("$playClick");
+          this.tag("Volume").src = "";
         }
       }, class Player1 extends this {
         _getFocused() {
@@ -6851,7 +6919,7 @@ var APP_com_metrological_app_rtow = (function () {
           this.tag("AlertBox").stopAnimation();
           this.fireAncestors("$stopCredits");
         }
-        _handleBack() {
+        _handleBackRelease() {
           setTimeout(() => {
             this.fireAncestors("$playClick");
             this._setState("Centre");
@@ -9319,12 +9387,14 @@ var APP_com_metrological_app_rtow = (function () {
       this.tag("Winner").y = -300;
       this.tag("Left.Title").name = Storage.get("p1name");
       this.tag("Right.Title").name = Storage.get("p2name");
+      this.exiting = false;
     }
     _unfocus() {
       this.resetNames();
     }
     _handleBack() {
       this.fireAncestors("$playClick");
+      this.exiting = true;
       this.rtow();
       if (this.winner) {
         this.tag("Winner").patch({
@@ -9346,8 +9416,8 @@ var APP_com_metrological_app_rtow = (function () {
         this._handleBack();
       }
     }
-    _handleKey(key) {
-      if (!this.winner) {
+    _handleKeyRelease(key) {
+      if (!this.winner && !this.exiting) {
         this.count++;
         if (key.keyCode === playKeys.left) {
           this.rtow("left");
@@ -9521,13 +9591,23 @@ var APP_com_metrological_app_rtow = (function () {
       this.credits = new Audio("static/sounds/credits.mp3");
     }
     $toggleSound() {
-      if (Storage.get("gameSound") === "enabled") {
-        Storage.set("gameSound", "disabled");
-        this.gameSound = false;
-      } else {
-        Storage.set("gameSound", "enabled");
-        this.gameSound = true;
+      if (!this.speakerBlast) {
+        if (Storage.get("gameSound") === "enabled") {
+          Storage.set("gameSound", "disabled");
+          this.gameSound = false;
+        } else {
+          Storage.set("gameSound", "enabled");
+          this.gameSound = true;
+        }
       }
+    }
+    $getGameSound() {
+      return this.gameSound;
+    }
+    $blastSpeaker() {
+      this.speakerBlast = true;
+      Storage.set("gameSound", "disabled");
+      this.gameSound = false;
     }
     $playClick() {
       if (this.gameSound) {
@@ -9559,12 +9639,6 @@ var APP_com_metrological_app_rtow = (function () {
       if (this.gameSound) {
         this.credits.pause();
       }
-    }
-    _captureKey(key) {
-      if (key.keyCode === 36) {
-        this.$toggleSound();
-      }
-      return false;
     }
     _init() {
       if (Storage.get("gameSound") === "enabled") {

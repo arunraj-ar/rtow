@@ -130,6 +130,7 @@ export default class Play extends Lightning.Component {
     this.tag("Winner").y = -300;
     this.tag("Left.Title").name = Storage.get("p1name");
     this.tag("Right.Title").name = Storage.get("p2name");
+    this.exiting = false;
   }
 
   _unfocus() {
@@ -138,6 +139,7 @@ export default class Play extends Lightning.Component {
 
   _handleBack() {
     this.fireAncestors("$playClick");
+    this.exiting = true;
     this.rtow();
     if (this.winner) {
       this.tag("Winner").patch({
@@ -161,8 +163,8 @@ export default class Play extends Lightning.Component {
     }
   }
 
-  _handleKey(key) {
-    if (!this.winner) {
+  _handleKeyRelease(key) {
+    if (!this.winner && !this.exiting) {
       this.count++;
       if (key.keyCode === playKeys.left) {
         this.rtow("left");

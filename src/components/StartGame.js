@@ -124,7 +124,7 @@ export default class StartGame extends Lightning.Component {
     this.underLineAnimation.stop();
   }
 
-  _handleEnter() {
+  _handleEnterRelease() {
     this.enterAnimation();
     setTimeout(() => {
       Router.navigate("play");

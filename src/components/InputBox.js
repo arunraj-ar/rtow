@@ -73,7 +73,7 @@ export default class InputBox extends Lightning.Component {
     this.underLineAnimation.stop();
   }
 
-  _handleEnter() {
+  _handleEnterRelease() {
     if (this.isEditable) {
       this.fireAncestors("$playClick");
       this.nameChange = true;

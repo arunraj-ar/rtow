@@ -44,13 +44,25 @@ export default class App extends Router.App {
   }
 
   $toggleSound() {
-    if (Storage.get("gameSound") === "enabled") {
-      Storage.set("gameSound", "disabled");
-      this.gameSound = false;
-    } else {
-      Storage.set("gameSound", "enabled");
-      this.gameSound = true;
+    if (!this.speakerBlast) {
+      if (Storage.get("gameSound") === "enabled") {
+        Storage.set("gameSound", "disabled");
+        this.gameSound = false;
+      } else {
+        Storage.set("gameSound", "enabled");
+        this.gameSound = true;
+      }
     }
+  }
+
+  $getGameSound() {
+    return this.gameSound;
+  }
+
+  $blastSpeaker() {
+    this.speakerBlast = true;
+    Storage.set("gameSound", "disabled");
+    this.gameSound = false;
   }
 
   $playClick() {
@@ -88,13 +100,6 @@ export default class App extends Router.App {
     if (this.gameSound) {
       this.credits.pause();
     }
-  }
-
-  _captureKey(key) {
-    if (key.keyCode === 36) {
-      this.$toggleSound();
-    }
-    return false;
   }
 
   _init() {
