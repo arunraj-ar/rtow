@@ -80,6 +80,7 @@ export default class InputBox extends Lightning.Component {
       if (this.editMode) {
         this.title = this.tag("Title").text.text;
         this.name = this.title;
+        this.previousName = this.name;
         this.editMode = false;
         this.blinkAnimation.stop();
         this.tag("Underline").color = 0xffffffff;
@@ -102,8 +103,8 @@ export default class InputBox extends Lightning.Component {
     if (this.isEditable && this.editMode) {
       if (isAlphabet && nameLen < this.maxNameLen) {
         this.fireAncestors("$playClick");
-        this.name = this.tag("Title").text.text + key.key;
         this.nameChange = true;
+        this.name = this.tag("Title").text.text + key.key;
       } else if (key.keyCode === 8) {
         if (nameLen > 0) {
           this.fireAncestors("$playClick");

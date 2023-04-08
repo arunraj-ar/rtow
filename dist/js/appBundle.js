@@ -1,9 +1,9 @@
 /**
  * App version: 1.0.0
- * SDK version: 5.2.0
- * CLI version: 2.9.1
+ * SDK version: 5.3.1
+ * CLI version: 2.10.0
  * 
- * Generated: Sun, 12 Feb 2023 19:44:28 GMT
+ * Generated: Sat, 08 Apr 2023 21:01:37 GMT
  */
 
 var APP_com_metrological_app_rtow = (function () {
@@ -1178,21 +1178,25 @@ var APP_com_metrological_app_rtow = (function () {
       }
       position(top, left) {
         this.videoView.patch({
-          x: left,
-          y: top
+          smooth: {
+            x: left,
+            y: top
+          }
         });
       }
       size(width, height) {
         this.videoView.patch({
-          w: width,
-          h: height
+          smooth: {
+            w: width,
+            h: height
+          }
         });
       }
       show() {
-        this.videoView.alpha = 1;
+        this.videoView.setSmooth('alpha', 1);
       }
       hide() {
-        this.videoView.alpha = 0;
+        this.videoView.setSmooth('alpha', 0);
       }
     };
   });
@@ -2229,6 +2233,40 @@ var APP_com_metrological_app_rtow = (function () {
    * limitations under the License.
    */
 
+  var fetchJson = (file => {
+    return new Promise((resolve, reject) => {
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState == XMLHttpRequest.DONE) {
+          // file protocol returns 0
+          // http(s) protocol returns 200
+          if (xhr.status === 0 || xhr.status === 200) resolve(JSON.parse(xhr.responseText));else reject(xhr.statusText);
+        }
+      };
+      xhr.open('GET', file);
+      xhr.send(null);
+    });
+  });
+
+  /*
+   * If not stated otherwise in this file or this component's LICENSE file the
+   * following copyright and licenses apply:
+   *
+   * Copyright 2020 Metrological
+   *
+   * Licensed under the Apache License, Version 2.0 (the License);
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   * http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   */
+
   let basePath;
   let proxyUrl;
   const initUtils = config => {
@@ -2330,7 +2368,7 @@ var APP_com_metrological_app_rtow = (function () {
   const initLanguage = function (file) {
     let language = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
     return new Promise((resolve, reject) => {
-      fetch(file).then(response => response.json()).then(json => {
+      fetchJson(file).then(json => {
         setTranslations(json);
         // set language (directly or in a promise)
         typeof language === 'object' && 'then' in language && typeof language.then === 'function' ? language.then(lang => setLanguage(lang).then(resolve).catch(reject)).catch(e => {
@@ -2378,7 +2416,7 @@ var APP_com_metrological_app_rtow = (function () {
           resolve();
         } else if (typeof translationsObj === 'string') {
           const url = Utils.asset(translationsObj);
-          fetch(url).then(response => response.json()).then(json => {
+          fetchJson(url).then(json => {
             // save the translations for this language (to prevent loading twice)
             translations[language] = json;
             resolve();
@@ -2605,7 +2643,7 @@ var APP_com_metrological_app_rtow = (function () {
         addColors(file);
         return resolve();
       }
-      fetch(file).then(response => response.json()).then(json => {
+      fetchJson(file).then(json => {
         addColors(json);
         return resolve();
       }).catch(() => {
@@ -2617,7 +2655,7 @@ var APP_com_metrological_app_rtow = (function () {
   };
 
   var name = "@lightningjs/sdk";
-  var version = "5.2.0";
+  var version = "5.3.1";
   var license = "Apache-2.0";
   var types = "index.d.ts";
   var scripts = {
@@ -2635,10 +2673,10 @@ var APP_com_metrological_app_rtow = (function () {
   var dependencies = {
   	"@babel/polyfill": "^7.11.5",
   	"@lightningjs/core": "^2.7.0",
-  	"@metrological/sdk": "github:metrological/metrological-sdk",
+  	"@metrological/sdk": "^1.0.0",
   	"@michieljs/execute-as-promise": "^1.0.0",
   	deepmerge: "^4.2.2",
-  	localCookie: "github:WebPlatformForEmbedded/localCookie",
+  	localcookies: "^2.0.0",
   	shelljs: "^0.8.5",
   	"url-polyfill": "^1.1.10",
   	"whatwg-fetch": "^3.0.0"
@@ -2711,6 +2749,7 @@ var APP_com_metrological_app_rtow = (function () {
     stage: {
       w: 1920,
       h: 1080,
+      precision: 1,
       clearColor: 0x00000000,
       canvas2d: false
     },
@@ -2794,13 +2833,39 @@ var APP_com_metrological_app_rtow = (function () {
         let config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
         Accessibility.colorshift(this, type, config);
       }
+      get keymapping() {
+        return this.stage.application.config.keys;
+      }
+
+      /**
+       * This function overrides the default keymap with the latest keymap.
+       * @param customKeyMap
+       * @param keepDuplicates
+       */
+      overrideKeyMap(customKeyMap) {
+        let keepDuplicates = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+        const baseKeyMap = this.stage.application.config.keys;
+        Object.keys(customKeyMap).reduce((keymapping, key) => {
+          // prevent duplicate values to exist in final keymapping (i.e. 2 keys triggering 'Back')
+          if (!keepDuplicates) {
+            Object.keys(baseKeyMap).forEach(baseKey => {
+              if (baseKey != key && baseKeyMap[baseKey] == customKeyMap[key]) {
+                delete keymapping[baseKey];
+              }
+            });
+          }
+          keymapping[key] = customKeyMap[key];
+          return keymapping;
+        }, baseKeyMap);
+        return baseKeyMap;
+      }
       _setup() {
         Promise.all([this.loadFonts(App.config && App.config.fonts || App.getFonts && App.getFonts() || []),
         // to be deprecated
         Locale$1.load(App.config && App.config.locale || App.getLocale && App.getLocale()), App.language && this.loadLanguage(App.language()), App.colors && this.loadColors(App.colors())]).then(() => {
           Metrics$1.app.loaded();
-          this.w = this.config.stage.w;
-          this.h = this.config.stage.h;
+          this.w = this.config.stage.w / this.config.stage.precision;
+          this.h = this.config.stage.h / this.config.stage.precision;
           AppInstance = this.stage.c({
             ref: 'App',
             type: App,
@@ -4539,6 +4604,29 @@ var APP_com_metrological_app_rtow = (function () {
         console.error("[Router]: ".concat(config.bootComponent, " is not a valid boot component"));
       }
     }
+    config.routes.forEach(item => {
+      // replacing regexes with 'R' to avoid issues with pattern matching below
+      const strippedPath = stripRegex(item.path);
+
+      // Pattern to identify the last path of the route
+      // It should start with "/:" + any word  and ends with "?"
+      // It should be the last path of the route
+      // valid => /player/:asset/:assetId? (:assetId is optional)
+      // invalid => /player/:asset/:assetId?/test (:assetId? is not an optional path)
+      // invalid => /player/:asset?/:assetId? (second path is not considered as an optional path)
+      const pattern = /.*\/:.*?\?$/u;
+      if (pattern.test(strippedPath)) {
+        const optionalPath = item.path.substring(0, item.path.lastIndexOf('/'));
+        const originalPath = item.path.substring(0, item.path.lastIndexOf('?'));
+        item.path = originalPath;
+        //Create another entry with the optional path
+        let optionalItem = {
+          ...item
+        };
+        optionalItem.path = optionalPath;
+        config.routes.push(optionalItem);
+      }
+    });
     initialised = true;
   };
   const storeComponent = (route, type) => {
@@ -4691,6 +4779,9 @@ var APP_com_metrological_app_rtow = (function () {
   };
   const setLastHash = hash => {
     lastAcceptedHash = hash;
+  };
+  const setPreviousState = state => {
+    previousState = state;
   };
   const getPreviousState = () => {
     return previousState;
@@ -4860,7 +4951,7 @@ var APP_com_metrological_app_rtow = (function () {
    */
   const dataHooks = {
     on: request => {
-      app.state || '';
+      setPreviousState(app.state || '');
       app._setState('Loading');
       return execProvider(request);
     },
@@ -5196,7 +5287,9 @@ var APP_com_metrological_app_rtow = (function () {
         // in case of on() providing we need to reset
         // app state;
         if (app.state === 'Loading') {
-          if (getPreviousState() === 'Widgets') ; else {
+          if (getPreviousState() === 'Widgets') {
+            app._setState('Widgets', [getActiveWidget()]);
+          } else {
             app._setState('');
           }
         }
@@ -6044,6 +6137,183 @@ var APP_com_metrological_app_rtow = (function () {
    * See the License for the specific language governing permissions and
    * limitations under the License.
    */
+  class SubtitleComponent extends Lightning$1.Component {
+    static _template() {
+      return {
+        visible: false,
+        rect: true,
+        color: 0x90000000,
+        shader: {
+          type: Lightning$1.shaders.RoundedRectangle,
+          radius: 5
+        },
+        Text: {
+          y: 5,
+          x: 20,
+          text: {
+            textColor: 0xffffffff,
+            fontSize: 38,
+            lineHeight: 38 * 1.4,
+            textAlign: 'center',
+            wordWrap: true,
+            maxLines: 3,
+            shadow: true,
+            shadowColor: 0xff333333
+          }
+        }
+      };
+    }
+    _init() {
+      this._textTextureDefaults = new Lightning$1.textures.TextTexture(this.stage).cloneArgs();
+      this.tag('Text').on('txLoaded', _ref => {
+        let {
+          _source
+        } = _ref;
+        this.w = _source.w + this.tag('Text').x * 2;
+        this.h = _source.h;
+        this.position();
+      });
+    }
+    get textFormat() {
+      const textTag = this.tag('Text').text;
+      return {
+        fontFace: textTag.fontFace || 'sans-serif',
+        fontSize: textTag.fontSize,
+        lineHeight: textTag.lineHeight,
+        textAlign: textTag.textAlign,
+        wordWrap: true,
+        maxLines: textTag.maxLines
+      };
+    }
+    show() {
+      this.visible = true;
+    }
+    hide() {
+      this.visible = false;
+    }
+    position() {
+      this.x = this._calculateX(this.xPos);
+      this.y = this._calculateY(this.yPos);
+    }
+    set viewportW(v) {
+      this._viewportW = v;
+      this.x = this._calculateX(this.xPos);
+    }
+    get viewportW() {
+      return this._viewportW || this.application.finalW;
+    }
+    set viewportH(v) {
+      this._viewportH = v;
+      this.y = this._calculateY(this.yPos);
+    }
+    get viewportH() {
+      return this._viewportH || this.application.finalH;
+    }
+    _calculateX(x) {
+      if (x === 'center') {
+        x = (this.viewportW - this.finalW) / 2;
+      } else if (x === 'left') {
+        x = 60;
+      } else if (x === 'right') {
+        x = this.viewportW - this.finalW - 60;
+      }
+      return x;
+    }
+    set xPos(v) {
+      this._x = v;
+      this.x = this._calculateX(v);
+    }
+    get xPos() {
+      return this._x || 'center';
+    }
+    _calculateY(y) {
+      if (y === 'center') {
+        return (this.viewportH - this.finalH) / 2;
+      } else if (y === 'top') {
+        return 60;
+      } else if (y === 'bottom') {
+        return this.viewportH - this.finalH - 60;
+      }
+      return y;
+    }
+    set yPos(v) {
+      this._y = v;
+      this.y = this._calculateY(v);
+    }
+    get yPos() {
+      return this._y || 'bottom';
+    }
+    set fontFamily(v) {
+      this.tag('Text').text.fontFace = v;
+    }
+    set fontSize(v) {
+      this.tag('Text').text.fontSize = v;
+      this.tag('Text').text.lineHeight = v * 1.3;
+    }
+    set fontColor(v) {
+      this.tag('Text').color = v;
+    }
+    set backgroundColor(v) {
+      this.color = v;
+    }
+    _defineBreakpoint(text, breakpoint) {
+      if (breakpoint >= this.maxWidth) return this.maxWidth;
+      const info = Lightning$1.textures.TextTexture.renderer(this.stage, this.stage.platform.getDrawingCanvas(), {
+        ...this._textTextureDefaults,
+        ...this.textFormat,
+        ...{
+          wordWrapWidth: breakpoint
+        },
+        text
+      })._calculateRenderInfo();
+      if (info.width <= breakpoint && info.lines.length <= 2) {
+        return breakpoint;
+      } else {
+        return this._defineBreakpoint(text, breakpoint * 1.25);
+      }
+    }
+    set text(v) {
+      this.alpha = 0;
+      if (v && v.length) {
+        const breakpoint = this._defineBreakpoint(v, 640);
+        this.tag('Text').text.wordWrapWidth = breakpoint;
+        this.tag('Text').text = v;
+        this.alpha = 1;
+      }
+    }
+    set textAlign(v) {
+      this._textAlign = v;
+      this.tag('Text').text.textAlign = v;
+    }
+    set maxWidth(v) {
+      this._maxWidth = v;
+    }
+    get maxWidth() {
+      return (this._maxWidth || 1200) - this.tag('Text').x * 2;
+    }
+    set maxLines(v) {
+      this.tag('Text').text.maxLines = v;
+    }
+  }
+
+  /*
+   * If not stated otherwise in this file or this component's LICENSE file the
+   * following copyright and licenses apply:
+   *
+   * Copyright 2020 Metrological
+   *
+   * Licensed under the Apache License, Version 2.0 (the License);
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   * http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   */
 
   const COLORS = {
     white: {
@@ -6255,6 +6525,7 @@ var APP_com_metrological_app_rtow = (function () {
         if (this.editMode) {
           this.title = this.tag("Title").text.text;
           this.name = this.title;
+          this.previousName = this.name;
           this.editMode = false;
           this.blinkAnimation.stop();
           this.tag("Underline").color = 0xffffffff;
@@ -6276,8 +6547,8 @@ var APP_com_metrological_app_rtow = (function () {
       if (this.isEditable && this.editMode) {
         if (isAlphabet && nameLen < this.maxNameLen) {
           this.fireAncestors("$playClick");
-          this.name = this.tag("Title").text.text + key.key;
           this.nameChange = true;
+          this.name = this.tag("Title").text.text + key.key;
         } else if (key.keyCode === 8) {
           if (nameLen > 0) {
             this.fireAncestors("$playClick");
