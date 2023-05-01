@@ -3,7 +3,7 @@
  * SDK version: 5.3.1
  * CLI version: 2.10.0
  * 
- * Generated: Sat, 08 Apr 2023 21:01:37 GMT
+ * Generated: Mon, 01 May 2023 20:05:48 GMT
  */
 
 var APP_com_metrological_app_rtow = (function () {
@@ -6386,7 +6386,6 @@ var APP_com_metrological_app_rtow = (function () {
               color: 0xff000000,
               mount: 0.5,
               text: {
-                fontFace: "SourceCodePro",
                 fontSize: 48,
                 text: "confirm exit"
               }
@@ -6397,7 +6396,6 @@ var APP_com_metrological_app_rtow = (function () {
               color: 0xff000000,
               mount: 0.5,
               text: {
-                fontFace: "SourceCodePro",
                 fontSize: 20,
                 text: "[enter]"
               }
@@ -6466,11 +6464,11 @@ var APP_com_metrological_app_rtow = (function () {
       return {
         Title: {
           w: 150,
+          h: 25,
           mount: 0.5,
           zIndex: 99,
           color: 0xffffffff,
           text: {
-            fontFace: "SourceCodePro",
             fontSize: 20,
             text: "player"
           }
@@ -6520,26 +6518,35 @@ var APP_com_metrological_app_rtow = (function () {
     }
     _handleEnterRelease() {
       if (this.isEditable) {
-        this.fireAncestors("$playClick");
-        this.nameChange = true;
-        if (this.editMode) {
-          this.title = this.tag("Title").text.text;
-          this.name = this.title;
-          this.previousName = this.name;
-          this.editMode = false;
-          this.blinkAnimation.stop();
-          this.tag("Underline").color = 0xffffffff;
-          this.tag("Title").color = 0xffffffff;
+        if (this.name.length > 0) {
+          this.fireAncestors("$playClick");
+          this.nameChange = true;
+          if (this.editMode) {
+            this.title = this.tag("Title").text.text;
+            this.name = this.title;
+            this.previousName = this.name;
+            this.editMode = false;
+            this.blinkAnimation.stop();
+            this.tag("Underline").color = 0xffffffff;
+            this.tag("Title").color = 0xffffffff;
+          } else {
+            this.name = this.title;
+            this.editMode = true;
+            this.tag("Underline").color = 0xff000000;
+            this.tag("Title").color = 0xff000000;
+            this.blinkAnimation.start();
+            return true;
+          }
         } else {
-          this.name = this.title;
-          this.editMode = true;
-          this.tag("Underline").color = 0xff000000;
-          this.tag("Title").color = 0xff000000;
-          this.blinkAnimation.start();
-          return true;
+          console.log("Play error sound");
         }
       }
       return false;
+    }
+    _handleBackRelease() {
+      if (!this.editMode) {
+        return false;
+      }
     }
     _captureKey(key) {
       let isAlphabet = key.keyCode >= 65 && key.keyCode <= 90;
@@ -6566,6 +6573,9 @@ var APP_com_metrological_app_rtow = (function () {
       this.tag("Title").text.text = v;
       this.title = v;
       this.wordLen = this.tag("Title").text.text.length * 12;
+      if (v.length === 0) {
+        this.wordLen = 144;
+      }
       this.refreshAnimations();
       if (this.nameChange) {
         this.nameChange = false;
@@ -6656,7 +6666,6 @@ var APP_com_metrological_app_rtow = (function () {
           color: 0xff000000,
           mount: 0.5,
           text: {
-            fontFace: "SourceCodePro",
             fontSize: 96,
             text: "rtow"
           }
@@ -6667,7 +6676,6 @@ var APP_com_metrological_app_rtow = (function () {
           color: 0xff000000,
           mount: 0.5,
           text: {
-            fontFace: "SourceCodePro",
             fontSize: 20,
             text: "play game"
           }
@@ -7108,7 +7116,7 @@ var APP_com_metrological_app_rtow = (function () {
           this.fireAncestors("$playClick");
           this._setState("Centre");
         }
-        _handleBack() {
+        _handleBackRelease() {
           this.fireAncestors("$playClick");
           this._setState("Centre");
         }
@@ -7150,7 +7158,7 @@ var APP_com_metrological_app_rtow = (function () {
         _handleRight() {
           //
         }
-        _handleBack() {
+        _handleBackRelease() {
           this.fireAncestors("$playClick");
           this._setState("Centre");
         }
@@ -9611,7 +9619,6 @@ var APP_com_metrological_app_rtow = (function () {
             mount: 0.5,
             zIndex: 5,
             text: {
-              fontFace: "SourceCodePro",
               fontSize: 50,
               text: "player"
             }
@@ -9622,7 +9629,6 @@ var APP_com_metrological_app_rtow = (function () {
             color: 0xff000000,
             mount: 0.5,
             text: {
-              fontFace: "SourceCodePro",
               fontSize: 20,
               text: "wins"
             }
@@ -9648,8 +9654,18 @@ var APP_com_metrological_app_rtow = (function () {
     }
     _firstEnable() {
       this.confetti = new Audio("static/sounds/confetti.mp3");
+      this.startingCountDown = false;
     }
     _focus() {
+      this.startPlayingTimer = undefined;
+      if (!this.startingCountDown) {
+        this.startingCountDown = true;
+        Router.focusWidget("CountDown");
+        this.startPlayingTimer = setTimeout(() => {
+          Router.focusPage();
+          this.startingCountDown = false;
+        }, 4000);
+      }
       this.moveNames();
       this.count = 0;
       this.move = 50;
@@ -9661,7 +9677,11 @@ var APP_com_metrological_app_rtow = (function () {
       this.exiting = false;
     }
     _unfocus() {
-      this.resetNames();
+      if (!this.startingCountDown) {
+        this.startPlayingTimer && clearTimeout(this.startPlayingTimer);
+        Router.focusPage();
+        this.resetNames();
+      }
     }
     _handleBack() {
       this.fireAncestors("$playClick");
@@ -9821,9 +9841,77 @@ var APP_com_metrological_app_rtow = (function () {
       component: HomeScreen
     }, {
       path: "play",
-      component: Play
+      component: Play,
+      widgets: ["CountDown"]
     }]
   };
+
+  /*
+   * If not stated otherwise in this file or this component's LICENSE file the
+   * following copyright and licenses apply:
+   *
+   * Copyright 2020 Metrological
+   *
+   * Licensed under the Apache License, Version 2.0 (the License);
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   * http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   */
+  class CountDown extends Lightning$1.Component {
+    static _template() {
+      return {
+        Wrapper: {
+          w: 1920,
+          h: 1080,
+          visible: false,
+          Timer: {
+            x: 960,
+            y: 540,
+            mount: 0.5,
+            zIndex: 999,
+            color: 0xffffffff,
+            text: {
+              fontSize: 240,
+              text: "3"
+            }
+          }
+        }
+      };
+    }
+    _firstEnable() {
+      this.countDownAnimation = this.tag("Timer").animation({
+        duration: 4,
+        repeat: 0,
+        actions: [{
+          p: "text.text",
+          v: {
+            0: "3",
+            0.25: "2",
+            0.5: "1",
+            0.75: "go",
+            1: "go"
+          }
+        }]
+      });
+    }
+    _focus() {
+      this.tag("Wrapper").visible = true;
+      this.countDownAnimation.start();
+    }
+    _unfocus() {
+      this.tag("Wrapper").visible = false;
+      this.tag("Timer").text.text = "3";
+    }
+    _handleKey() {}
+    _handleKeyRelease() {}
+  }
 
   /*
    * If not stated otherwise in this file or this component's LICENSE file the
@@ -9853,7 +9941,14 @@ var APP_com_metrological_app_rtow = (function () {
     static _template() {
       return {
         ...super._template(),
-        Widgets: {}
+        Pages: {
+          forceZIndexContext: true
+        },
+        Widgets: {
+          CountDown: {
+            type: CountDown
+          }
+        }
       };
     }
     _setup() {
