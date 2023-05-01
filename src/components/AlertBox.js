@@ -40,7 +40,6 @@ export default class AlertBox extends Lightning.Component {
             color: 0xff000000,
             mount: 0.5,
             text: {
-              fontFace: "SourceCodePro",
               fontSize: 48,
               text: "confirm exit",
             },
@@ -51,7 +50,6 @@ export default class AlertBox extends Lightning.Component {
             color: 0xff000000,
             mount: 0.5,
             text: {
-              fontFace: "SourceCodePro",
               fontSize: 20,
               text: "[enter]",
             },

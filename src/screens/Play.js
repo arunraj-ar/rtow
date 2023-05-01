@@ -81,7 +81,6 @@ export default class Play extends Lightning.Component {
           mount: 0.5,
           zIndex: 5,
           text: {
-            fontFace: "SourceCodePro",
             fontSize: 50,
             text: "player",
           },
@@ -92,7 +91,6 @@ export default class Play extends Lightning.Component {
           color: 0xff000000,
           mount: 0.5,
           text: {
-            fontFace: "SourceCodePro",
             fontSize: 20,
             text: "wins",
           },
@@ -119,9 +117,19 @@ export default class Play extends Lightning.Component {
 
   _firstEnable() {
     this.confetti = new Audio("static/sounds/confetti.mp3");
+    this.startingCountDown = false;
   }
 
   _focus() {
+    this.startPlayingTimer = undefined;
+    if (!this.startingCountDown) {
+        this.startingCountDown = true;
+        Router.focusWidget("CountDown");
+        this.startPlayingTimer = setTimeout(() => {
+          Router.focusPage();
+          this.startingCountDown = false;
+        }, 4000);
+    }
     this.moveNames();
     this.count = 0;
     this.move = 50;
@@ -134,7 +142,11 @@ export default class Play extends Lightning.Component {
   }
 
   _unfocus() {
-    this.resetNames();
+    if (!this.startingCountDown) {
+      this.startPlayingTimer && clearTimeout(this.startPlayingTimer);
+      Router.focusPage();
+      this.resetNames();
+    }
   }
 
   _handleBack() {
