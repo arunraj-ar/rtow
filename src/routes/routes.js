@@ -30,6 +30,7 @@ export default {
     {
       path: "play",
       component: Play,
+      widgets: ["CountDown"]
     },
   ],
 };

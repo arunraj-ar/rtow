@@ -37,7 +37,6 @@ export default class StartGame extends Lightning.Component {
         color: 0xff000000,
         mount: 0.5,
         text: {
-          fontFace: "SourceCodePro",
           fontSize: 96,
           text: "rtow",
         },
@@ -48,7 +47,6 @@ export default class StartGame extends Lightning.Component {
         color: 0xff000000,
         mount: 0.5,
         text: {
-          fontFace: "SourceCodePro",
           fontSize: 20,
           text: "play game",
         },

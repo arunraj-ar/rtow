@@ -19,6 +19,7 @@
 
 import { Router, Storage, Utils } from "@lightningjs/sdk";
 import routes from "./routes/routes";
+import CountDown from "./widgets/CountDown";
 
 export default class App extends Router.App {
   static getFonts() {
@@ -33,7 +34,14 @@ export default class App extends Router.App {
   static _template() {
     return {
       ...super._template(),
-      Widgets: {},
+      Pages:{
+        forceZIndexContext: true
+      },
+      Widgets: {
+        CountDown: {
+          type: CountDown
+        }
+      },
     };
   }
 

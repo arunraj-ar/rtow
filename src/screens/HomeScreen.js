@@ -269,7 +269,7 @@ export default class HomeScreen extends Lightning.Component {
           this.fireAncestors("$playClick");
           this._setState("Centre");
         }
-        _handleBack() {
+        _handleBackRelease() {
           this.fireAncestors("$playClick");
           this._setState("Centre");
         }
@@ -312,7 +312,7 @@ export default class HomeScreen extends Lightning.Component {
         _handleRight() {
           //
         }
-        _handleBack() {
+        _handleBackRelease() {
           this.fireAncestors("$playClick");
           this._setState("Centre");
         }
