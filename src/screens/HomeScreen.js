@@ -21,6 +21,7 @@ import AlertBox from "../components/AlertBox";
 import InputBox from "../components/InputBox";
 import StartGame from "../components/StartGame";
 import { COLORS, defaultColors } from "../config/config";
+import HintsApi from "../api/HintsAPi";
 
 export default class HomeScreen extends Lightning.Component {
   static _template() {
@@ -89,6 +90,12 @@ export default class HomeScreen extends Lightning.Component {
     Storage.set("p2name", "playerTwo");
   }
 
+  _firstEnable() {
+    this.showHints = !Storage.get("previouslyPlayed");
+    Storage.set("previouslyPlayed", true);
+    this.HintsApi = new HintsApi();
+  }
+
   _handleBack() {}
 
   _handleUp() {
@@ -110,7 +117,12 @@ export default class HomeScreen extends Lightning.Component {
     });
     this.moveNames();
     setTimeout(() => {
-      this._setState("Centre");
+      if (this.showHints) {
+        this.showHints = false;
+        this._setState("Hints");
+      } else {
+        this._setState("Centre");
+      }
       this.setVolumeIcon();
     }, 900);
   }
@@ -363,10 +375,33 @@ export default class HomeScreen extends Lightning.Component {
           this.fireAncestors("$playClick");
           this.application.closeApp();
         }
-        _handleDown() {}
-        _handleUp() {}
-        _handleLeft() {}
-        _handleRight() {}
+        _handleKey() {}
+        _handleKeyRelease() {}
+      },
+      class Hints extends this {
+        $enter() {
+          this.HintsApi.getHints("start")
+            .then((result) => {
+              this.widgets.hints.setHints(result);
+            })
+            .catch((error) => {
+              console.error(error);
+              this.widgets.hints.setHints([
+                { x: 960, y: 540, mount: 0.5, text: "press Enter" },
+              ]);
+            });
+        }
+        $exit() {
+          this.widgets.hints.removeHints();
+        }
+        _handleKey() {}
+        _handleKeyRelease() {}
+        _handleBackRelease() {
+          this._setState("Centre");
+        }
+        _handleEnterRelease() {
+          this._setState("Centre");
+        }
       },
     ];
   }

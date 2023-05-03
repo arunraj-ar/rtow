@@ -3,7 +3,7 @@
  * SDK version: 5.3.1
  * CLI version: 2.10.0
  * 
- * Generated: Mon, 01 May 2023 20:05:48 GMT
+ * Generated: Wed, 03 May 2023 21:07:35 GMT
  */
 
 var APP_com_metrological_app_rtow = (function () {
@@ -6860,6 +6860,33 @@ var APP_com_metrological_app_rtow = (function () {
    * See the License for the specific language governing permissions and
    * limitations under the License.
    */
+
+  class HintsApi {
+    getHints(page) {
+      return new Promise((resolve, reject) => {
+        fetch("./../../static/data/Hints.json").then(response => response.json()).then(data => resolve(data[page])).catch(error => reject(error));
+      });
+    }
+  }
+
+  /*
+   * If not stated otherwise in this file or this component's LICENSE file the
+   * following copyright and licenses apply:
+   *
+   * Copyright 2020 Metrological
+   *
+   * Licensed under the Apache License, Version 2.0 (the License);
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   * http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   */
   class HomeScreen extends Lightning$1.Component {
     static _template() {
       return {
@@ -6925,6 +6952,11 @@ var APP_com_metrological_app_rtow = (function () {
       Storage.set("p1name", "playerOne");
       Storage.set("p2name", "playerTwo");
     }
+    _firstEnable() {
+      this.showHints = !Storage.get("previouslyPlayed");
+      Storage.set("previouslyPlayed", true);
+      this.HintsApi = new HintsApi();
+    }
     _handleBack() {}
     _handleUp() {
       if (!this.speakerBlast) {
@@ -6947,7 +6979,12 @@ var APP_com_metrological_app_rtow = (function () {
       });
       this.moveNames();
       setTimeout(() => {
-        this._setState("Centre");
+        if (this.showHints) {
+          this.showHints = false;
+          this._setState("Hints");
+        } else {
+          this._setState("Centre");
+        }
         this.setVolumeIcon();
       }, 900);
     }
@@ -7208,10 +7245,33 @@ var APP_com_metrological_app_rtow = (function () {
           this.fireAncestors("$playClick");
           this.application.closeApp();
         }
-        _handleDown() {}
-        _handleUp() {}
-        _handleLeft() {}
-        _handleRight() {}
+        _handleKey() {}
+        _handleKeyRelease() {}
+      }, class Hints extends this {
+        $enter() {
+          this.HintsApi.getHints("start").then(result => {
+            this.widgets.hints.setHints(result);
+          }).catch(error => {
+            console.error(error);
+            this.widgets.hints.setHints([{
+              x: 960,
+              y: 540,
+              mount: 0.5,
+              text: "press Enter"
+            }]);
+          });
+        }
+        $exit() {
+          this.widgets.hints.removeHints();
+        }
+        _handleKey() {}
+        _handleKeyRelease() {}
+        _handleBackRelease() {
+          this._setState("Centre");
+        }
+        _handleEnterRelease() {
+          this._setState("Centre");
+        }
       }];
     }
   }
@@ -9838,11 +9898,12 @@ var APP_com_metrological_app_rtow = (function () {
     root: "start",
     routes: [{
       path: "start",
-      component: HomeScreen
+      component: HomeScreen,
+      widgets: ["Hints"]
     }, {
       path: "play",
       component: Play,
-      widgets: ["CountDown"]
+      widgets: ["CountDown", "Hints"]
     }]
   };
 
@@ -9931,6 +9992,106 @@ var APP_com_metrological_app_rtow = (function () {
    * See the License for the specific language governing permissions and
    * limitations under the License.
    */
+  class HintsItem extends Lightning$1.Component {
+    static _template() {
+      return {
+        Content: {
+          zIndex: 999,
+          color: 0xffffffff,
+          text: {
+            fontSize: 20,
+            text: ""
+          }
+        }
+      };
+    }
+    _firstEnable() {
+      this.tag("Content").x = this.item.x;
+      this.tag("Content").y = this.item.y;
+      this.tag("Content").text.text = this.item.text;
+      this.item.color ? this.tag("Content").color = this.item.color : false;
+      this.item.mount ? this.tag("Content").mount = this.item.mount : false;
+    }
+  }
+
+  /*
+   * If not stated otherwise in this file or this component's LICENSE file the
+   * following copyright and licenses apply:
+   *
+   * Copyright 2020 Metrological
+   *
+   * Licensed under the Apache License, Version 2.0 (the License);
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   * http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   */
+  class Hints extends Lightning$1.Component {
+    static _template() {
+      return {
+        Wrapper: {
+          w: 1920,
+          h: 1080,
+          color: 0xcc000000,
+          rect: true,
+          visible: false
+        }
+      };
+    }
+    _init() {
+      this.reveal = this.tag("Wrapper").animation({
+        duration: 0.3,
+        repeat: 0,
+        stopMethod: "reverse",
+        actions: [{
+          p: "color",
+          v: {
+            0: 0x1a000000,
+            1: 0xcc000000
+          }
+        }]
+      });
+    }
+    setHints(v) {
+      this.tag("Wrapper").visible = true;
+      this.reveal.start();
+      this.tag("Wrapper").children = v.map(item => {
+        return {
+          type: HintsItem,
+          item
+        };
+      });
+    }
+    removeHints() {
+      this.reveal.stop();
+      this.tag("Wrapper").visible = false;
+    }
+  }
+
+  /*
+   * If not stated otherwise in this file or this component's LICENSE file the
+   * following copyright and licenses apply:
+   *
+   * Copyright 2020 Metrological
+   *
+   * Licensed under the Apache License, Version 2.0 (the License);
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   * http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   */
   class App extends Router.App {
     static getFonts() {
       return [{
@@ -9947,6 +10108,9 @@ var APP_com_metrological_app_rtow = (function () {
         Widgets: {
           CountDown: {
             type: CountDown
+          },
+          Hints: {
+            type: Hints
           }
         }
       };
