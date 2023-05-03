@@ -1,0 +1,13 @@
+{
+  "start": [
+    { "x": 480, "y": 600, "mount": 0.5, "text": "change: left arrow > Enter" },
+    {
+      "x": 1440,
+      "y": 600,
+      "mount": 0.5,
+      "text": "change: right arrow > Enter"
+    },
+    { "x": 960, "y": 750, "mount": 0.5, "text": "play: Enter" },
+    { "x": 1820, "y": 100, "mount": 1, "text": "mute/unmute: up arrow > Enter" }
+  ]
+}

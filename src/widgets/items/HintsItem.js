@@ -17,21 +17,27 @@
  * limitations under the License.
  */
 
-import HomeScreen from "../screens/HomeScreen";
-import Play from "../screens/Play";
+import { Lightning } from "@lightningjs/sdk";
 
-export default {
-  root: "start",
-  routes: [
-    {
-      path: "start",
-      component: HomeScreen,
-      widgets: ["Hints"]
-    },
-    {
-      path: "play",
-      component: Play,
-      widgets: ["CountDown", "Hints"]
-    },
-  ],
-};
+export default class HintsItem extends Lightning.Component {
+  static _template() {
+    return {
+      Content: {
+        zIndex: 999,
+        color: 0xffffffff,
+        text: {
+          fontSize: 20,
+          text: "",
+        },
+      },
+    };
+  }
+
+  _firstEnable() {
+    this.tag("Content").x = this.item.x;
+    this.tag("Content").y = this.item.y;
+    this.tag("Content").text.text = this.item.text;
+    this.item.color ? (this.tag("Content").color = this.item.color) : false;
+    this.item.mount ? (this.tag("Content").mount = this.item.mount) : false;
+  }
+}

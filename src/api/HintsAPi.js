@@ -17,21 +17,15 @@
  * limitations under the License.
  */
 
-import HomeScreen from "../screens/HomeScreen";
-import Play from "../screens/Play";
 
-export default {
-  root: "start",
-  routes: [
-    {
-      path: "start",
-      component: HomeScreen,
-      widgets: ["Hints"]
-    },
-    {
-      path: "play",
-      component: Play,
-      widgets: ["CountDown", "Hints"]
-    },
-  ],
-};
+
+export default class HintsApi {
+  getHints(page) {
+    return new Promise((resolve, reject) => {
+      fetch("./../../static/data/Hints.json")
+        .then((response) => response.json())
+        .then((data) => resolve(data[page]))
+        .catch((error) => reject(error));
+    });
+  }
+}

@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Lightning, Utils } from "@lightningjs/sdk";
+import { Lightning } from "@lightningjs/sdk";
 import { defaultColors } from "../config/config";
 
 export default class AlertBox extends Lightning.Component {

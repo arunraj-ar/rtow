@@ -20,6 +20,7 @@
 import { Router, Storage, Utils } from "@lightningjs/sdk";
 import routes from "./routes/routes";
 import CountDown from "./widgets/CountDown";
+import Hints from "./widgets/Hints";
 
 export default class App extends Router.App {
   static getFonts() {
@@ -40,6 +41,9 @@ export default class App extends Router.App {
       Widgets: {
         CountDown: {
           type: CountDown
+        },
+        Hints: {
+          type: Hints
         }
       },
     };
