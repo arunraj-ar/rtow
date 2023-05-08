@@ -91,8 +91,7 @@ export default class HomeScreen extends Lightning.Component {
   }
 
   _firstEnable() {
-    this.showHints = !Storage.get("previouslyPlayed");
-    Storage.set("previouslyPlayed", true);
+    this.showHints = !Storage.get("previouslyPlayed_start");
     this.HintsApi = new HintsApi();
   }
 
@@ -393,6 +392,7 @@ export default class HomeScreen extends Lightning.Component {
         }
         $exit() {
           this.widgets.hints.removeHints();
+          Storage.set("previouslyPlayed_start", true);
         }
         _handleKey() {}
         _handleKeyRelease() {}
