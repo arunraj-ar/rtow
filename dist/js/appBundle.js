@@ -1,9 +1,9 @@
 /**
  * App version: 1.0.0
  * SDK version: 5.3.1
- * CLI version: 2.10.0
+ * CLI version: 2.11.0
  * 
- * Generated: Wed, 03 May 2023 21:07:35 GMT
+ * Generated: Mon, 08 May 2023 18:26:12 GMT
  */
 
 var APP_com_metrological_app_rtow = (function () {
@@ -10011,6 +10011,7 @@ var APP_com_metrological_app_rtow = (function () {
       this.tag("Content").text.text = this.item.text;
       this.item.color ? this.tag("Content").color = this.item.color : false;
       this.item.mount ? this.tag("Content").mount = this.item.mount : false;
+      this.item.fontSize ? this.tag("Content").text.fontSize = this.item.fontSize : false;
     }
   }
 
