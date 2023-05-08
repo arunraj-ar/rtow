@@ -8,6 +8,19 @@
       "text": "change: right arrow > Enter"
     },
     { "x": 960, "y": 750, "mount": 0.5, "text": "play: Enter" },
-    { "x": 1820, "y": 100, "mount": 1, "text": "mute/unmute: up arrow > Enter" }
+    {
+      "x": 1820,
+      "y": 100,
+      "mount": 1,
+      "text": "mute/unmute: up arrow > Enter"
+    },
+    {
+      "x": 960,
+      "y": 950,
+      "mount": 0.5,
+      "text": "OK",
+      "color": "0xffF1C40F",
+      "fontSize": 40
+    }
   ]
 }
