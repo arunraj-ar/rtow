@@ -22,5 +22,29 @@
       "color": "0xffF1C40F",
       "fontSize": 40
     }
+  ],
+  "play": [
+    {
+      "x": 760,
+      "y": 850,
+      "mount": 0.5,
+      "text": "press 1",
+      "textAlign": "center"
+    },
+    {
+      "x": 1160,
+      "y": 850,
+      "mount": 0.5,
+      "text": "press 0",
+      "textAlign": "center"
+    },
+    {
+      "x": 960,
+      "y": 950,
+      "mount": 0.5,
+      "text": "OK",
+      "color": "0xffF1C40F",
+      "fontSize": 40
+    }
   ]
 }

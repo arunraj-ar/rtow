@@ -39,6 +39,11 @@ export default class HintsItem extends Lightning.Component {
     this.tag("Content").text.text = this.item.text;
     this.item.color ? (this.tag("Content").color = this.item.color) : false;
     this.item.mount ? (this.tag("Content").mount = this.item.mount) : false;
-    this.item.fontSize? (this.tag("Content").text.fontSize = this.item.fontSize): false;
+    this.item.fontSize
+      ? (this.tag("Content").text.fontSize = this.item.fontSize)
+      : false;
+    this.item.textAlign
+      ? (this.tag("Content").text.textAlign = this.item.textAlign)
+      : false;
   }
 }

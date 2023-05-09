@@ -397,9 +397,11 @@ export default class HomeScreen extends Lightning.Component {
         _handleKey() {}
         _handleKeyRelease() {}
         _handleBackRelease() {
+          this.fireAncestors("$playClick");
           this._setState("Centre");
         }
         _handleEnterRelease() {
+          this.fireAncestors("$playClick");
           this._setState("Centre");
         }
       },
