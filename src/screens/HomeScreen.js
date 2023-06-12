@@ -305,7 +305,6 @@ export default class HomeScreen extends Lightning.Component {
           });
         }
         _handleEnter() {
-          this.fireAncestors("$playClick");
           let name = this.tag("Left.Title").name;
           if (name.length > 0) {
             Storage.set("p1name", name);
@@ -348,7 +347,6 @@ export default class HomeScreen extends Lightning.Component {
           });
         }
         _handleEnter() {
-          this.fireAncestors("$playClick");
           let name = this.tag("Right.Title").name;
           if (name.length > 0) {
             Storage.set("p2name", name);
