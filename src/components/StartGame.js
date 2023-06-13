@@ -37,7 +37,6 @@ export default class StartGame extends Lightning.Component {
         color: 0xff000000,
         mount: 0.5,
         text: {
-          fontFace: "SourceCodePro",
           fontSize: 96,
           text: "rtow",
         },
@@ -48,7 +47,6 @@ export default class StartGame extends Lightning.Component {
         color: 0xff000000,
         mount: 0.5,
         text: {
-          fontFace: "SourceCodePro",
           fontSize: 20,
           text: "play game",
         },
@@ -58,7 +56,7 @@ export default class StartGame extends Lightning.Component {
         w: 101,
         mountX: 0.5,
         zIndex: 200,
-        texture: lng.Tools.getCanvasTexture(StartGame._createCanvas),
+        texture: lng.Tools.getCanvasTexture(this._createCanvas),
       },
       Shadow: {
         White: {
@@ -124,26 +122,13 @@ export default class StartGame extends Lightning.Component {
     this.underLineAnimation.stop();
   }
 
-  _handleClick() {
-    console.log("click from StartGame");
-  }
-
-  _handleHover() {
-    console.log("hover from StartGame");
-  }
-
-  _handleEnter() {
-    console.log("enter from StartGame");
+  _handleEnterRelease() {
     this.enterAnimation();
     setTimeout(() => {
       Router.navigate("play");
     }, 900);
+    return false;
   }
-
-  // _handleKey(key) {
-  //   console.log("handleKey: ", key);
-  //   return false;
-  // }
 
   enterAnimation() {
     this.tag("Box").color = 0xffe6e6e6;

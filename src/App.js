@@ -17,8 +17,10 @@
  * limitations under the License.
  */
 
-import { Router, Utils } from "@lightningjs/sdk";
+import { Router, Storage, Utils } from "@lightningjs/sdk";
 import routes from "./routes/routes";
+import CountDown from "./widgets/CountDown";
+import Hints from "./widgets/Hints";
 
 export default class App extends Router.App {
   static getFonts() {
@@ -33,14 +35,92 @@ export default class App extends Router.App {
   static _template() {
     return {
       ...super._template(),
-      Widgets: {},
+      Pages:{
+        forceZIndexContext: true
+      },
+      Widgets: {
+        CountDown: {
+          type: CountDown
+        },
+        Hints: {
+          type: Hints
+        }
+      },
     };
   }
 
   _setup() {
     Router.startRouter(routes, this);
     document.title = "rtow";
+    this.credits = new Audio("static/sounds/credits.mp3");
   }
 
-  _init() {}
+  $toggleSound() {
+    if (!this.speakerBlast) {
+      if (Storage.get("gameSound") === "enabled") {
+        Storage.set("gameSound", "disabled");
+        this.gameSound = false;
+      } else {
+        Storage.set("gameSound", "enabled");
+        this.gameSound = true;
+      }
+    }
+  }
+
+  $getGameSound() {
+    return this.gameSound;
+  }
+
+  $blastSpeaker() {
+    this.speakerBlast = true;
+    Storage.set("gameSound", "disabled");
+    this.gameSound = false;
+  }
+
+  $playClick() {
+    if (this.gameSound) {
+      new Audio("static/sounds/click.wav").play();
+    }
+  }
+
+  $playWoosh() {
+    if (this.gameSound) {
+      new Audio("static/sounds/woosh.mp3").play();
+    }
+  }
+
+  $playWinner() {
+    if (this.gameSound) {
+      new Audio("static/sounds/winner.mp3").play();
+    }
+  }
+
+  $playConfetti() {
+    if (this.gameSound) {
+      new Audio("static/sounds/confetti.mp3").play();
+    }
+  }
+
+  $playCredits() {
+    if (this.gameSound) {
+      this.credits.load();
+      this.credits.play();
+    }
+  }
+
+  $stopCredits() {
+    if (this.gameSound) {
+      this.credits.pause();
+    }
+  }
+
+  _init() {
+    if (Storage.get("gameSound") === "enabled") {
+      this.gameSound = true;
+    } else if (Storage.get("gameSound") === "disabled") {
+      this.gameSound = false;
+    } else {
+      this.$toggleSound();
+    }
+  }
 }

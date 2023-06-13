@@ -26,10 +26,12 @@ export default {
     {
       path: "start",
       component: HomeScreen,
+      widgets: ["Hints"]
     },
     {
       path: "play",
       component: Play,
+      widgets: ["CountDown", "Hints"]
     },
   ],
 };

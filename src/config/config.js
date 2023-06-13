@@ -30,12 +30,16 @@ export const COLORS = {
     inactive: 0xffcf7474,
     active: 0xffea7474,
   },
+  warning: {
+    active: 0xffdc3545,
+  },
 };
 
 export const defaultColors = {
   middle: COLORS.white,
   left: COLORS.green,
   right: COLORS.red,
+  alert: COLORS.warning,
 };
 
 export const playKeys = {

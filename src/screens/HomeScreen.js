@@ -17,9 +17,11 @@
  * limitations under the License.
  */
 import { Lightning, Storage } from "@lightningjs/sdk";
+import AlertBox from "../components/AlertBox";
 import InputBox from "../components/InputBox";
 import StartGame from "../components/StartGame";
 import { COLORS, defaultColors } from "../config/config";
+import HintsApi from "../api/HintsAPi";
 
 export default class HomeScreen extends Lightning.Component {
   static _template() {
@@ -29,6 +31,13 @@ export default class HomeScreen extends Lightning.Component {
         h: 1080,
         rect: true,
         color: 0xff000000,
+      },
+      Volume: {
+        x: 1870,
+        y: 50,
+        mount: 0.5,
+        zIndex: 3,
+        src: "",
       },
       Left: {
         zIndex: 2,
@@ -67,23 +76,38 @@ export default class HomeScreen extends Lightning.Component {
         y: -300,
         type: StartGame,
       },
+      AlertBox: {
+        x: 960,
+        y: 540,
+        zIndex: 999,
+        type: AlertBox,
+      },
     };
   }
 
   _init() {
-    console.log("init from HomeScreen");
-    console.log(defaultColors);
     Storage.set("p1name", "playerOne");
     Storage.set("p2name", "playerTwo");
   }
 
-  _handleBack() {
-    this.application.closeApp();
+  _firstEnable() {
+    this.showHints = !Storage.get("previouslyPlayed_start");
+    this.HintsApi = new HintsApi();
+  }
+
+  _handleBack() {}
+
+  _handleUp() {
+    if (!this.speakerBlast) {
+      this.fireAncestors("$playClick");
+      this._setState("Volume");
+    }
   }
 
   _focus() {
     this.updateNameValues(1, Storage.get("p1name"));
     this.updateNameValues(2, Storage.get("p2name"));
+    this.long = 0;
     this.tag("Centre").y = -300;
     this.tag("Centre").patch({
       smooth: {
@@ -92,13 +116,27 @@ export default class HomeScreen extends Lightning.Component {
     });
     this.moveNames();
     setTimeout(() => {
-      this._setState("Centre");
+      if (this.showHints) {
+        this.showHints = false;
+        this._setState("Hints");
+      } else {
+        this._setState("Centre");
+      }
+      this.setVolumeIcon();
     }, 900);
   }
 
   _unfocus() {
     this.resetNamesPosition();
     this._setState("Idle");
+  }
+
+  setVolumeIcon() {
+    if (this.fireAncestors("$getGameSound")) {
+      this.tag("Volume").src = "static/icons/sound.png";
+    } else {
+      this.tag("Volume").src = "static/icons/mute.png";
+    }
   }
 
   moveNames() {
@@ -164,7 +202,47 @@ export default class HomeScreen extends Lightning.Component {
   static _states() {
     return [
       class Idle extends this {
-        _handleKey() {
+        _handleKeyRelease() {
+          this._setState("Centre");
+        }
+      },
+      class Volume extends this {
+        $enter() {
+          this.tag("Volume").color = 0xff000000;
+        }
+        $exit() {
+          this.tag("Volume").color = 0xffffffff;
+        }
+        _handleEnter() {
+          if (!this.speakerBlast) {
+            this.fireAncestors("$toggleSound");
+            this.setVolumeIcon();
+            this.fireAncestors("$playClick");
+            this.long++;
+            if (this.long > 100) {
+              new Audio("static/sounds/boom.mp3").play();
+              this.fireAncestors("$blastSpeaker");
+              this.setVolumeIcon();
+              this.speakerBlast = true;
+              this.tag("Volume").patch({
+                smooth: {
+                  x: [0, { timingFunction: "ease-out", duration: 0.5 }],
+                  y: [1200, { timingFunction: "ease-out", duration: 0.5 }],
+                },
+              });
+              this._setState("Idle");
+            }
+          }
+        }
+        _handleEnterRelease() {
+          this.long = 0;
+        }
+        _handleDown() {
+          this.fireAncestors("$playClick");
+          this._setState("Centre");
+        }
+        _handleBack() {
+          this.fireAncestors("$playClick");
           this._setState("Centre");
         }
       },
@@ -173,10 +251,22 @@ export default class HomeScreen extends Lightning.Component {
           return this.tag("Centre");
         }
         _handleLeft() {
+          this.fireAncestors("$playClick");
           this._setState("Player1");
         }
         _handleRight() {
+          this.fireAncestors("$playClick");
           this._setState("Player2");
+        }
+        _handleBackRelease() {
+          setTimeout(() => {
+            this.fireAncestors("$playClick");
+            this._setState("ExitApp");
+          }, 300);
+        }
+        _handleEnterRelease() {
+          this.fireAncestors("$playClick");
+          this.tag("Volume").src = "";
         }
       },
       class Player1 extends this {
@@ -187,6 +277,11 @@ export default class HomeScreen extends Lightning.Component {
           //
         }
         _handleRight() {
+          this.fireAncestors("$playClick");
+          this._setState("Centre");
+        }
+        _handleBackRelease() {
+          this.fireAncestors("$playClick");
           this._setState("Centre");
         }
         $enter() {
@@ -210,7 +305,10 @@ export default class HomeScreen extends Lightning.Component {
           });
         }
         _handleEnter() {
-          Storage.set("p1name", this.tag("Left.Title").name);
+          let name = this.tag("Left.Title").name;
+          if (name.length > 0) {
+            Storage.set("p1name", name);
+          }
         }
       },
       class Player2 extends this {
@@ -218,10 +316,15 @@ export default class HomeScreen extends Lightning.Component {
           return this.tag("Right.Title");
         }
         _handleLeft() {
+          this.fireAncestors("$playClick");
           this._setState("Centre");
         }
         _handleRight() {
           //
+        }
+        _handleBackRelease() {
+          this.fireAncestors("$playClick");
+          this._setState("Centre");
         }
         $enter() {
           this.tag("Right.Box").patch({
@@ -244,7 +347,60 @@ export default class HomeScreen extends Lightning.Component {
           });
         }
         _handleEnter() {
-          Storage.set("p2name", this.tag("Right.Title").name);
+          let name = this.tag("Right.Title").name;
+          if (name.length > 0) {
+            Storage.set("p2name", name);
+          }
+        }
+      },
+      class ExitApp extends this {
+        $enter() {
+          this.tag("AlertBox").startAnimation();
+          this.fireAncestors("$playCredits");
+        }
+        $exit() {
+          this.tag("AlertBox").stopAnimation();
+          this.fireAncestors("$stopCredits");
+        }
+        _handleBackRelease() {
+          setTimeout(() => {
+            this.fireAncestors("$playClick");
+            this._setState("Centre");
+          }, 300);
+        }
+        _handleEnter() {
+          this.fireAncestors("$playClick");
+          this.application.closeApp();
+        }
+        _handleKey() {}
+        _handleKeyRelease() {}
+      },
+      class Hints extends this {
+        $enter() {
+          this.HintsApi.getHints("start")
+            .then((result) => {
+              this.widgets.hints.setHints(result);
+            })
+            .catch((error) => {
+              console.error(error);
+              this.widgets.hints.setHints([
+                { x: 960, y: 540, mount: 0.5, text: "press Enter" },
+              ]);
+            });
+        }
+        $exit() {
+          this.widgets.hints.removeHints();
+          Storage.set("previouslyPlayed_start", true);
+        }
+        _handleKey() {}
+        _handleKeyRelease() {}
+        _handleBackRelease() {
+          this.fireAncestors("$playClick");
+          this._setState("Centre");
+        }
+        _handleEnterRelease() {
+          this.fireAncestors("$playClick");
+          this._setState("Centre");
         }
       },
     ];

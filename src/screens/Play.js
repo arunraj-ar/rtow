@@ -20,6 +20,8 @@
 import { Lightning, Router, Storage } from "@lightningjs/sdk";
 import InputBox from "../components/InputBox";
 import { defaultColors, playKeys } from "../config/config";
+import party from "party-js";
+import HintsApi from "../api/HintsAPi";
 
 export default class Play extends Lightning.Component {
   static _template() {
@@ -80,7 +82,6 @@ export default class Play extends Lightning.Component {
           mount: 0.5,
           zIndex: 5,
           text: {
-            fontFace: "SourceCodePro",
             fontSize: 50,
             text: "player",
           },
@@ -91,7 +92,6 @@ export default class Play extends Lightning.Component {
           color: 0xff000000,
           mount: 0.5,
           text: {
-            fontFace: "SourceCodePro",
             fontSize: 20,
             text: "wins",
           },
@@ -116,67 +116,35 @@ export default class Play extends Lightning.Component {
     };
   }
 
-  _init() {
-    console.log("init from Play");
+  _firstEnable() {
+    this.confetti = new Audio("static/sounds/confetti.mp3");
+    this.startingCountDown = false;
+    this.HintsApi = new HintsApi();
+    this.showHints = !Storage.get("previouslyPlayed_play");
   }
 
   _focus() {
-    this.moveNames();
-    this.count = 0;
-    this.move = 50;
-    this.speed = 0.5;
-    this.winner = false;
-    this.tag("Winner").y = -300;
-    this.tag("Left.Title").name = Storage.get("p1name");
-    this.tag("Right.Title").name = Storage.get("p2name");
+    if (this.showHints) {
+      this._setState("Hints");
+    } else {
+      this._setState("Play");
+    }
   }
 
   _unfocus() {
-    this.resetNames();
-  }
-
-  _handleBack() {
-    this.rtow();
-    if (this.winner) {
-      this.tag("Winner").patch({
-        smooth: {
-          y: [1380, { timingFunction: "ease-in-out", duration: 0.7 }],
-        },
-      });
-    }
-    setTimeout(
-      () => {
-        Router.navigate("start");
-      },
-      this.count > 0 ? 750 : 100
-    );
-  }
-
-  _handleEnter() {
-    if (this.winner) {
-      this._handleBack();
-    }
-  }
-
-  _handleKey(key) {
-    if (!this.winner) {
-      this.count++;
-      if (key.keyCode === playKeys.left) {
-        this.rtow("left");
-      } else if (key.keyCode === playKeys.right) {
-        this.rtow("right");
-      }
+    if (!this.startingCountDown) {
+      this._setState("Idle");
     }
   }
 
   rtow(playerPosition) {
     let val = -960;
     if (playerPosition) {
+      this.fireAncestors("$playWoosh");
       if (this.count % 10 === 0 && this.count > this.move) {
         this.move = this.count - (this.count % 10);
         if (this.speed > 0.2) {
           this.speed -= 0.02;
-          console.log("SPEED: ", this.speed);
         }
       }
       if (playerPosition === "left") {
@@ -238,6 +206,13 @@ export default class Play extends Lightning.Component {
         y: [540, { timingFunction: "ease-in-out", duration: 0.7 }],
       },
     });
+    setTimeout(() => {
+      party.confetti(document.getElementsByTagName("canvas")[0], {
+        count: 100,
+      });
+      this.fireAncestors("$playConfetti");
+      this.fireAncestors("$playWinner");
+    }, 500);
   }
 
   resetNames() {
@@ -249,5 +224,111 @@ export default class Play extends Lightning.Component {
     this.tag("Left.Title").y = player1Y;
     this.tag("Right.Title").x = player2X;
     this.tag("Right.Title").y = player2Y;
+  }
+
+  static _states() {
+    return [
+      class Idle extends this {
+        _handleKey() {
+          this._setState("Play");
+        }
+      },
+      class Play extends this {
+        $enter() {
+          this.startPlayingTimer = undefined;
+          if (!this.startingCountDown) {
+            this.startingCountDown = true;
+            Router.focusWidget("CountDown");
+            this.startPlayingTimer = setTimeout(() => {
+              Router.focusPage();
+              this.startingCountDown = false;
+            }, 4000);
+          }
+          this.moveNames();
+          this.count = 0;
+          this.move = 50;
+          this.speed = 0.5;
+          this.winner = false;
+          this.tag("Winner").y = -300;
+          this.tag("Left.Title").name = Storage.get("p1name");
+          this.tag("Right.Title").name = Storage.get("p2name");
+          this.exiting = false;
+        }
+
+        $exit() {
+          if (!this.startingCountDown) {
+            this.startPlayingTimer && clearTimeout(this.startPlayingTimer);
+            Router.focusPage();
+            this.resetNames();
+          }
+        }
+
+        _handleBack() {
+          this.fireAncestors("$playClick");
+          this.exiting = true;
+          this.rtow();
+          if (this.winner) {
+            this.tag("Winner").patch({
+              smooth: {
+                y: [1380, { timingFunction: "ease-in-out", duration: 0.7 }],
+              },
+            });
+          }
+          setTimeout(
+            () => {
+              Router.navigate("start");
+            },
+            this.count > 0 ? 750 : 100
+          );
+        }
+
+        _handleEnter() {
+          if (this.winner) {
+            this.fireAncestors("$playClick");
+            this._handleBack();
+          }
+        }
+
+        _handleKeyRelease(key) {
+          if (!this.winner && !this.exiting) {
+            this.count++;
+            if (key.keyCode === playKeys.left) {
+              this.rtow("left");
+            } else if (key.keyCode === playKeys.right) {
+              this.rtow("right");
+            }
+          }
+        }
+      },
+      class Hints extends this {
+        $enter() {
+          this.HintsApi.getHints("play")
+            .then((result) => {
+              this.widgets.hints.setHints(result);
+            })
+            .catch((error) => {
+              console.error(error);
+              this.widgets.hints.setHints([
+                { x: 960, y: 540, mount: 0.5, text: "press Enter" },
+              ]);
+            });
+        }
+        $exit() {
+          this.widgets.hints.removeHints();
+          this.showHints = false;
+          Storage.set("previouslyPlayed_play", true);
+        }
+        _handleKey() {}
+        _handleKeyRelease() {}
+        _handleBackRelease() {
+          this.fireAncestors("$playClick");
+          this._setState("Play");
+        }
+        _handleEnterRelease() {
+          this.fireAncestors("$playClick");
+          this._setState("Play");
+        }
+      },
+    ];
   }
 }

@@ -23,11 +23,11 @@ export default class InputBox extends Lightning.Component {
     return {
       Title: {
         w: 150,
+        h: 25,
         mount: 0.5,
         zIndex: 99,
         color: 0xffffffff,
         text: {
-          fontFace: "SourceCodePro",
           fontSize: 20,
           text: "player",
         },
@@ -73,47 +73,55 @@ export default class InputBox extends Lightning.Component {
     this.underLineAnimation.stop();
   }
 
-  _handleEnter() {
+  _handleEnterRelease() {
     if (this.isEditable) {
-      this.nameChange = true;
-      if (this.editMode) {
-        this.title = this.tag("Title").text.text;
-        this.name = this.title;
-        this.editMode = false;
-        this.blinkAnimation.stop();
-        this.tag("Underline").color = 0xffffffff;
-        this.tag("Title").color = 0xffffffff;
+      if (this.name.length > 0) {
+        this.fireAncestors("$playClick");
+        this.nameChange = true;
+        if (this.editMode) {
+          this.title = this.tag("Title").text.text;
+          this.name = this.title;
+          this.previousName = this.name;
+          this.editMode = false;
+          this.blinkAnimation.stop();
+          this.tag("Underline").color = 0xffffffff;
+          this.tag("Title").color = 0xffffffff;
+        } else {
+          this.name = this.title;
+          this.editMode = true;
+          this.tag("Underline").color = 0xff000000;
+          this.tag("Title").color = 0xff000000;
+          this.blinkAnimation.start();
+          return true;
+        }
       } else {
-        this.name = this.title;
-        this.editMode = true;
-        this.tag("Underline").color = 0xff000000;
-        this.tag("Title").color = 0xff000000;
-        this.blinkAnimation.start();
-        return true;
+        console.log("Play error sound");
       }
     }
     return false;
+  }
+  _handleBackRelease() {
+    if (!this.editMode) {
+      return false;
+    }
   }
 
   _captureKey(key) {
     let isAlphabet = key.keyCode >= 65 && key.keyCode <= 90;
     let nameLen = this.tag("Title").text.text.length;
-    if (
-      this.isEditable &&
-      this.editMode &&
-      isAlphabet &&
-      nameLen < this.maxNameLen
-    ) {
-      this.name = this.tag("Title").text.text + key.key;
-      this.nameChange = true;
-    } else if (key.keyCode === 8) {
-      if (nameLen === 0) {
-        console.log("Nothing more to clear");
-      } else {
-        if (this.editMode) {
+    if (this.isEditable && this.editMode) {
+      if (isAlphabet && nameLen < this.maxNameLen) {
+        this.fireAncestors("$playClick");
+        this.nameChange = true;
+        this.name = this.tag("Title").text.text + key.key;
+      } else if (key.keyCode === 8) {
+        if (nameLen > 0) {
+          this.fireAncestors("$playClick");
           this.name = this.tag("Title").text.text.slice(0, -1);
           this.nameChange = true;
         }
+      } else {
+        return false;
       }
     } else {
       return false;
@@ -124,6 +132,9 @@ export default class InputBox extends Lightning.Component {
     this.tag("Title").text.text = v;
     this.title = v;
     this.wordLen = this.tag("Title").text.text.length * 12;
+    if (v.length === 0) {
+      this.wordLen = 144;
+    }
     this.refreshAnimations();
     if (this.nameChange) {
       this.nameChange = false;
