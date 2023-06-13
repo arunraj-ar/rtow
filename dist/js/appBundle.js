@@ -3,7 +3,7 @@
  * SDK version: 5.3.1
  * CLI version: 2.11.0
  * 
- * Generated: Tue, 09 May 2023 07:39:33 GMT
+ * Generated: Tue, 13 Jun 2023 20:01:35 GMT
  */
 
 var APP_com_metrological_app_rtow = (function () {
@@ -7177,7 +7177,6 @@ var APP_com_metrological_app_rtow = (function () {
           });
         }
         _handleEnter() {
-          this.fireAncestors("$playClick");
           let name = this.tag("Left.Title").name;
           if (name.length > 0) {
             Storage.set("p1name", name);
@@ -7219,7 +7218,6 @@ var APP_com_metrological_app_rtow = (function () {
           });
         }
         _handleEnter() {
-          this.fireAncestors("$playClick");
           let name = this.tag("Right.Title").name;
           if (name.length > 0) {
             Storage.set("p2name", name);
