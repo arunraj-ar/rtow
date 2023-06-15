@@ -3,7 +3,7 @@
  * SDK version: 5.3.1
  * CLI version: 2.11.0
  * 
- * Generated: Tue, 13 Jun 2023 20:17:25 GMT
+ * Generated: Thu, 15 Jun 2023 18:28:25 GMT
  */
 
 var APP_com_metrological_app_rtow = (function () {
@@ -6860,11 +6860,10 @@ var APP_com_metrological_app_rtow = (function () {
    * See the License for the specific language governing permissions and
    * limitations under the License.
    */
-
   class HintsApi {
     getHints(page) {
       return new Promise((resolve, reject) => {
-        fetch("./../../static/data/Hints.json").then(response => response.json()).then(data => resolve(data[page])).catch(error => reject(error));
+        fetch(Utils.asset("data/Hints.json")).then(response => response.json()).then(data => resolve(data[page])).catch(error => reject(error));
       });
     }
   }
