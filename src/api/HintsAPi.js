@@ -17,12 +17,13 @@
  * limitations under the License.
  */
 
+import { Utils } from "@lightningjs/sdk";
 
 
 export default class HintsApi {
   getHints(page) {
     return new Promise((resolve, reject) => {
-      fetch("./../../static/data/Hints.json")
+      fetch(Utils.asset("data/Hints.json"))
         .then((response) => response.json())
         .then((data) => resolve(data[page]))
         .catch((error) => reject(error));
