@@ -242,7 +242,7 @@ export default class Play extends Lightning.Component {
             this.startPlayingTimer = setTimeout(() => {
               Router.focusPage();
               this.startingCountDown = false;
-            }, 4000);
+            }, 3400);
           }
           this.moveNames();
           this.count = 0;
