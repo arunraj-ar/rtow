@@ -17,8 +17,7 @@
  * limitations under the License.
  */
 
-import { Lightning, Router, Storage } from "@lightningjs/sdk";
-import { defaultColors, playKeys } from "../config/config";
+import { Lightning } from "@lightningjs/sdk";
 
 export default class CountDown extends Lightning.Component {
   static _template() {
@@ -58,6 +57,9 @@ export default class CountDown extends Lightning.Component {
   _focus() {
     this.tag("Wrapper").visible = true;
     this.countDownAnimation.start();
+    setTimeout(() => {
+      this.fireAncestors("$playCountDown");
+    }, 290);
   }
   _unfocus() {
     this.tag("Wrapper").visible = false;

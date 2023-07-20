@@ -35,16 +35,16 @@ export default class App extends Router.App {
   static _template() {
     return {
       ...super._template(),
-      Pages:{
-        forceZIndexContext: true
+      Pages: {
+        forceZIndexContext: true,
       },
       Widgets: {
         CountDown: {
-          type: CountDown
+          type: CountDown,
         },
         Hints: {
-          type: Hints
-        }
+          type: Hints,
+        },
       },
     };
   }
@@ -80,6 +80,12 @@ export default class App extends Router.App {
   $playClick() {
     if (this.gameSound) {
       new Audio("static/sounds/click.wav").play();
+    }
+  }
+
+  $playCountDown() {
+    if (this.gameSound) {
+      new Audio("static/sounds/countdown.mp3").play();
     }
   }
 

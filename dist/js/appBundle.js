@@ -3,7 +3,7 @@
  * SDK version: 5.3.1
  * CLI version: 2.11.0
  * 
- * Generated: Wed, 19 Jul 2023 17:54:31 GMT
+ * Generated: Wed, 19 Jul 2023 18:28:07 GMT
  */
 
 var APP_com_metrological_app_rtow = (function () {
@@ -9840,7 +9840,7 @@ var APP_com_metrological_app_rtow = (function () {
             this.startPlayingTimer = setTimeout(() => {
               Router.focusPage();
               this.startingCountDown = false;
-            }, 4000);
+            }, 3400);
           }
           this.moveNames();
           this.count = 0;
@@ -10015,6 +10015,9 @@ var APP_com_metrological_app_rtow = (function () {
     _focus() {
       this.tag("Wrapper").visible = true;
       this.countDownAnimation.start();
+      setTimeout(() => {
+        this.fireAncestors("$playCountDown");
+      }, 290);
     }
     _unfocus() {
       this.tag("Wrapper").visible = false;
@@ -10194,6 +10197,11 @@ var APP_com_metrological_app_rtow = (function () {
     $playClick() {
       if (this.gameSound) {
         new Audio("static/sounds/click.wav").play();
+      }
+    }
+    $playCountDown() {
+      if (this.gameSound) {
+        new Audio("static/sounds/countdown.mp3").play();
       }
     }
     $playWoosh() {
