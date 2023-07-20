@@ -54,6 +54,16 @@ export default class AlertBox extends Lightning.Component {
               text: "[enter]",
             },
           },
+          Dev: {
+            y: 300,
+            zIndex: 999,
+            color: 0xffffffff,
+            mount: 0.5,
+            text: {
+              fontSize: 16,
+              text: "github.com/arunraj-ar",
+            },
+          },
         },
         Shadow: {
           w: 1920,
