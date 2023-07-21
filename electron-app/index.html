@@ -1,55 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <style>
-            html {height: 100%; width: 100%;}
-            *,body {margin:0; padding:0;}
-            canvas { position: absolute; z-index: 2; }
-            body { width: 100%; height: 100%;}
-        </style>
-    </head>
-    <body>
-        <script src="./js/lightning.min.js"></script>
-        <script src="./js/appBundle.js"></script>
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      html {
+        height: 100%;
+        width: 100%;
+      }
+      *,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      canvas {
+        position: absolute;
+        z-index: 2;
+      }
+      body {
+        width: 100%;
+        height: 100%;
+        cursor: none;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="./js/lightning.min.js"></script>
+    <script src="./js/appBundle.js"></script>
 
-        <script>
-            const appSettings = {
-  "stage": {
-    "clearColor": "0x00000000",
-    "useImageWorker": true,
-    "defaultFontFace": "SourceCodePro",
-    "w": window.screen.width,
-    "h": window.screen.height,
-    "precision": window.screen.height/1080
-  },
-  "debug": false,
-  "enablePointer": false,
-  "name": "rtow",
-  "identifier": "com.metrological.app.rtow",
-  "version": "0.0.6",
-  "icon": "./static/icon.png",
-  "id": "com.metrological.app.rtow"
-}
+    <script>
+      const appSettings = {
+        stage: {
+          clearColor: "0x00000000",
+          useImageWorker: true,
+          defaultFontFace: "SourceCodePro",
+          w: window.screen.width,
+          h: window.screen.height,
+          precision: window.screen.height / 1080,
+        },
+        debug: false,
+        enablePointer: false,
+        name: "rtow",
+        identifier: "com.metrological.app.rtow",
+        version: "0.0.6",
+        icon: "./static/icon.png",
+        id: "com.metrological.app.rtow",
+      };
 
-            const platformSettings = {
-  "path": "./static",
-  "log": false,
-  "showVersion": false,
-  "inspector": false
-}
+      const platformSettings = {
+        path: "./static",
+        log: false,
+        showVersion: false,
+        inspector: false,
+      };
 
-            const appData = {}
+      const appData = {};
 
-            let bundle = window.APP_com_metrological_app_rtow
-            // support rollup and esbuild
-            if (typeof bundle !== 'function') {
-              bundle = bundle.default
-            }
+      let bundle = window.APP_com_metrological_app_rtow;
+      // support rollup and esbuild
+      if (typeof bundle !== "function") {
+        bundle = bundle.default;
+      }
 
-            const app = bundle(appSettings, platformSettings, appData)
-            document.body.appendChild(app.stage.getCanvas())
-
-        </script>
-    </body>
+      const app = bundle(appSettings, platformSettings, appData);
+      document.body.appendChild(app.stage.getCanvas());
+    </script>
+  </body>
 </html>
