@@ -3,7 +3,7 @@
  * SDK version: 5.3.1
  * CLI version: 2.11.0
  * 
- * Generated: Wed, 19 Jul 2023 18:28:07 GMT
+ * Generated: Thu, 20 Jul 2023 20:12:09 GMT
  */
 
 var APP_com_metrological_app_rtow = (function () {
@@ -6398,6 +6398,16 @@ var APP_com_metrological_app_rtow = (function () {
               text: {
                 fontSize: 20,
                 text: "[enter]"
+              }
+            },
+            Dev: {
+              y: 300,
+              zIndex: 999,
+              color: 0xffffffff,
+              mount: 0.5,
+              text: {
+                fontSize: 16,
+                text: "github.com/arunraj-ar"
               }
             }
           },
