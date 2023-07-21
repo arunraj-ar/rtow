@@ -7,15 +7,19 @@
 * the color that will be filled entirely on the screen will be the winner.
 
 ## ScreenCapture(WindowsApp)
-https://user-images.githubusercontent.com/39920311/216786849-3d0b01fd-538e-4053-8a22-b685cf01e604.mp4
+https://github.com/arunraj-ar/rtow/assets/39920311/39cb05f0-be1b-45a4-9878-a801ba0c03de
 
 ## Screenshots
-![rtow start](./screenshots/rtow%20start.jpg)
-![rtow play](./screenshots/rtow%20play.jpg)
-![rtow winner](./screenshots/rtow%20winner.jpg)
+![image](https://github.com/arunraj-ar/rtow/assets/39920311/cbeb67ab-93e4-4e6b-83ff-ed566d99d606)
+![image](https://github.com/arunraj-ar/rtow/assets/39920311/ff56dfab-b2c1-4d16-956e-5bdb2061c322)
+![image](https://github.com/arunraj-ar/rtow/assets/39920311/7782fe7e-6c52-4786-b204-25927c2d2cad)
+![image](https://github.com/arunraj-ar/rtow/assets/39920311/a7123ea3-4776-4c3b-80f5-e43835f83387)
+
+
+
+
 
 ## Plans
 
-* add game start timer
-* add app exit confirmation
 * support color change
+* publish windows app to store
