@@ -3,7 +3,7 @@
  * SDK version: 5.3.1
  * CLI version: 2.11.0
  * 
- * Generated: Thu, 20 Jul 2023 20:12:09 GMT
+ * Generated: Mon, 24 Jul 2023 20:30:31 GMT
  */
 
 var APP_com_metrological_app_rtow = (function () {
@@ -6344,6 +6344,79 @@ var APP_com_metrological_app_rtow = (function () {
     right: 48 //key 0
   };
 
+  class Boot extends Lightning$1.Component {
+    pageTransition() {
+      return "fade";
+    }
+    static _template() {
+      return {
+        Wrapper: {
+          Background: {
+            w: 1920,
+            h: 1080,
+            rect: true,
+            color: 0xffffffff
+          },
+          BoxWrap: {
+            x: 960,
+            y: 540,
+            Title: {
+              zIndex: 999,
+              color: 0xff000000,
+              mount: 0.5,
+              text: {
+                fontSize: 96,
+                text: "rtow"
+              }
+            },
+            Box: {
+              w: 404,
+              h: 404,
+              mount: 0.5,
+              zIndex: 99,
+              color: defaultColors.middle.inactive,
+              rect: true,
+              shader: {
+                type: Lightning$1.shaders.RoundedRectangle,
+                radius: 50
+              }
+            },
+            Shadow: {
+              White: {
+                x: -40,
+                y: -40,
+                mount: 0.5,
+                color: 0x33ffffff,
+                texture: lng.Tools.getShadowRect(404, 404, 50, 81, 162)
+              },
+              Black: {
+                x: 40,
+                y: 40,
+                mount: 0.5,
+                color: 0x33000000,
+                texture: lng.Tools.getShadowRect(404, 404, 50, 81, 162)
+              }
+            }
+          }
+        }
+      };
+    }
+    _focus() {
+      this.tag("Wrapper.Background").patch({
+        smooth: {
+          color: [0xfff42069, {
+            timingFunction: "ease-in-out",
+            duration: 1
+          }]
+        }
+      });
+      this.fireAncestors("$playLoading");
+      setTimeout(() => {
+        Router.resume();
+      }, 2000);
+    }
+  }
+
   /*
    * If not stated otherwise in this file or this component's LICENSE file the
    * following copyright and licenses apply:
@@ -9957,6 +10030,9 @@ var APP_com_metrological_app_rtow = (function () {
   var routes = {
     root: "start",
     routes: [{
+      path: "$",
+      component: Boot
+    }, {
       path: "start",
       component: HomeScreen,
       widgets: ["Hints"]
@@ -10203,6 +10279,11 @@ var APP_com_metrological_app_rtow = (function () {
       this.speakerBlast = true;
       Storage.set("gameSound", "disabled");
       this.gameSound = false;
+    }
+    $playLoading() {
+      if (this.gameSound) {
+        new Audio("static/sounds/loading.wav").play();
+      }
     }
     $playClick() {
       if (this.gameSound) {
