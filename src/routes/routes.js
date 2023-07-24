@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 
+import Boot from "../screens/Boot";
 import HomeScreen from "../screens/HomeScreen";
 import Play from "../screens/Play";
 
@@ -24,14 +25,18 @@ export default {
   root: "start",
   routes: [
     {
+      path: "$",
+      component: Boot,
+    },
+    {
       path: "start",
       component: HomeScreen,
-      widgets: ["Hints"]
+      widgets: ["Hints"],
     },
     {
       path: "play",
       component: Play,
-      widgets: ["CountDown", "Hints"]
+      widgets: ["CountDown", "Hints"],
     },
   ],
 };
