@@ -77,6 +77,12 @@ export default class App extends Router.App {
     this.gameSound = false;
   }
 
+  $playLoading() {
+    if (this.gameSound) {
+      new Audio("static/sounds/loading.wav").play();
+    }
+  }
+
   $playClick() {
     if (this.gameSound) {
       new Audio("static/sounds/click.wav").play();
