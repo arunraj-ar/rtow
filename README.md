@@ -1,4 +1,6 @@
-# rtow
+# <a href="https://rtow.vercel.app" target="_blank">rtow🡕</a>
+
+
 
 * rtow is a currently simple 2 player offline game inspired from [Finger Tap Battle](https://play.google.com/store/apps/details?id=com.pash.fingerbattle).
 * rtow is built using [LightningJS](https://lightningjs.io/) and currently only supports keyboard based user interactions. 
