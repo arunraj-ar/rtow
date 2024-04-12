@@ -1,4 +1,4 @@
-# <a href="https://rtow.vercel.app" target="_blank">rtow🡕</a>
+# [rtow](https://rtow.vercel.app)
 
 
 
